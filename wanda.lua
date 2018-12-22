@@ -1,9 +1,3 @@
--- program = [[
---     [ 0 fact -> 1 ]
---     [ ]
---     5 fact
--- ]]
-
 local filename = arg[1]
 local file = io.open(filename)
 local program = file:read("*all")
@@ -17,16 +11,31 @@ end
 
 rules = {}  -- not really
 
-function find_match(rules, redex, start_index)
-    return nil  -- find first rule in rules that matches redex[start-index ... end]
+function find_match(rules, redex, i)
+    local j = i
+    if redex[i] == "[" then
+        while redex[j] ~= "]" and redex[j] ~= nil do
+           j = j + 1
+        end
+        return {i, j}
+    else
+        return nil  -- find first rule in rules that matches redex[i ... end]
+    end
 end
 
-start_index = 0
+start_index = 1
 while start_index < table.getn(redex) do
     match_info = find_match(rules, redex, start_index)
     if match_info ~= nil then
-        redex = redex -- match-info.rule.replace(redex)
-        start_index = 0
+        local i = match_info[1]
+        local j = match_info[2]
+        while i <= j do
+            table.remove(redex, i)
+            j = j - 1
+        end
+        -- TODO: insert
+        -- TODO: also apply the side-effect
+        start_index = 1
     else
         start_index = start_index + 1
     end
