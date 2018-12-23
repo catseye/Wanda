@@ -22,9 +22,8 @@ function format_redex(redex)
 end
 
 function find_match(rules, redex, i)
-    local j = i
-
     if redex[i] == "[" then
+        local j = i
         while redex[j] ~= "]" and redex[j] ~= nil do
            j = j + 1
         end
@@ -58,13 +57,32 @@ function find_match(rules, redex, i)
 
     -- else find first rule in rules that matches redex[i ... end]
 
+    for n, rule in ipairs(rules) do
+        local pattern = rule.pattern
+        local patlen = table.getn(pattern)
+        local matched = true
+        for p, patbit in ipairs(pattern) do
+            if patbit ~= redex[i+(p-1)] then
+                matched = false
+                break
+            end
+        end
+        if matched then
+            return {i, i+(patlen-1), rule.replacement}
+        end
+    end
+
     return nil
 end
 
 function run_wanda(redex)
-    rules = {}
+    rules = {
+        {
+            pattern={"perim"}, replacement={"+", "2", "*"}
+        }
+    }
     start_index = 1
-    while start_index < table.getn(redex) do
+    while start_index <= table.getn(redex) do
         match_info = find_match(rules, redex, start_index)
         if match_info ~= nil then
             local i = match_info[1]
