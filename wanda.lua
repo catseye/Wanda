@@ -52,6 +52,17 @@ function find_match(rules, redex, i)
         return {i, i+2, {r}}
     end
 
+    if redex[i] ~= nil and redex[i+i] == "dup" then
+        local x = redex[i]
+        return {i, i+1, {x, x}}
+    end
+
+    if redex[i] ~= nil and redex[i+1] ~= nil and redex[i+2] == "swap" then
+        local x = redex[i]
+        local y = redex[i+1]
+        return {i, i+2, {y, x}}
+    end
+
     -- else find first rule in rules that matches redex[i ... end]
 
     return nil

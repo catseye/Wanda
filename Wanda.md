@@ -21,8 +21,8 @@ Here is a legal Wanda expression.  (The `===>` is
 not part of the Wanda program; it shows the expected
 result of running the program.)
 
-     2 3 + 4 *
-     ===> 20
+    2 3 + 4 *
+    ===> 20
 
 Evaluation happens by successively rewriting parts
 of the string of symbols.  For example, in the above,
