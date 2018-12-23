@@ -108,7 +108,7 @@ function run_wanda(redex)
             if defn ~= nil then
                 table.insert(rules, defn)
             end
-
+            --print("=> " .. format_redex(redex))
             start_index = 1
         else
             start_index = start_index + 1

@@ -112,7 +112,7 @@ with this, we can then say
 
     > [ 0 fact -> 1 ]
     > [ fact -> dup 1 - fact * ]
-    > fact 5
+    > 5 fact
     > ===> 120
 
 Pseudo-code for interpretation
