@@ -31,25 +31,18 @@ function find_match(rules, redex, i)
         return {i, j, {}}
     end
 
-    if is_number(redex[i]) and is_number(redex[i+1]) and redex[i+2] == "+" then
+    if is_number(redex[i]) and is_number(redex[i+1]) then
         local a = tonumber(redex[i])
         local b = tonumber(redex[i+1])
-        local r = tostring(a + b)
-        return {i, i+2, {r}}
-    end
-
-    if is_number(redex[i]) and is_number(redex[i+1]) and redex[i+2] == "*" then
-        local a = tonumber(redex[i])
-        local b = tonumber(redex[i+1])
-        local r = tostring(a * b)
-        return {i, i+2, {r}}
-    end
-
-    if is_number(redex[i]) and is_number(redex[i+1]) and redex[i+2] == "-" then
-        local a = tonumber(redex[i])
-        local b = tonumber(redex[i+1])
-        local r = tostring(a - b)
-        return {i, i+2, {r}}
+        if redex[i+2] == "+" then
+            return {i, i+2, {tostring(a + b)}}
+        end
+        if redex[i+2] == "*" then
+            return {i, i+2, {tostring(a * b)}}
+        end
+        if redex[i+2] == "-" then
+            return {i, i+2, {tostring(a - b)}}
+        end
     end
 
     if redex[i] ~= nil and redex[i+i] == "dup" then
