@@ -23,11 +23,21 @@ end
 
 function find_match(rules, redex, i)
     if redex[i] == "[" then
-        local j = i
+        local j = i + 1
+        local pattern = {}
+        local replacement = {}
+        local seen_arrow = false
         while redex[j] ~= "]" and redex[j] ~= nil do
+           if redex[j] == "->" then
+               seen_arrow = true
+           elseif seen_arrow then
+               table.insert(replacement, redex[j])
+           else
+               table.insert(pattern, redex[j])
+           end
            j = j + 1
         end
-        return {i, j, {}}
+        return {i, j, {}, {pattern=pattern, replacement=replacement}}
     end
 
     if is_number(redex[i]) and is_number(redex[i+1]) then
@@ -76,11 +86,7 @@ function find_match(rules, redex, i)
 end
 
 function run_wanda(redex)
-    rules = {
-        {
-            pattern={"perim"}, replacement={"+", "2", "*"}
-        }
-    }
+    rules = {}
     start_index = 1
     while start_index <= table.getn(redex) do
         match_info = find_match(rules, redex, start_index)
@@ -98,7 +104,10 @@ function run_wanda(redex)
                 table.insert(redex, i + (n-1), v)
             end
 
-            -- TODO: also apply the side-effect
+            local defn = match_info[4]
+            if defn ~= nil then
+                table.insert(rules, defn)
+            end
 
             start_index = 1
         else
