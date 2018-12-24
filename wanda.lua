@@ -37,32 +37,32 @@ function find_match(rules, redex, i)
            end
            j = j + 1
         end
-        return {i, j, {}, {pattern=pattern, replacement=replacement}}
+        return {start=i, stop=j, replacement={}, newrule={pattern=pattern, replacement=replacement}}
     end
 
     if is_number(redex[i]) and is_number(redex[i+1]) then
         local a = tonumber(redex[i])
         local b = tonumber(redex[i+1])
         if redex[i+2] == "+" then
-            return {i, i+2, {tostring(a + b)}}
+            return {start=i, stop=i+2, replacement={tostring(a + b)}}
         end
         if redex[i+2] == "*" then
-            return {i, i+2, {tostring(a * b)}}
+            return {start=i, stop=i+2, replacement={tostring(a * b)}}
         end
         if redex[i+2] == "-" then
-            return {i, i+2, {tostring(a - b)}}
+            return {start=i, stop=i+2, replacement={tostring(a - b)}}
         end
     end
 
     if redex[i] ~= nil and redex[i+i] == "dup" then
         local x = redex[i]
-        return {i, i+1, {x, x}}
+        return {start=i, stop=i+1, replacement={x, x}}
     end
 
     if redex[i] ~= nil and redex[i+1] ~= nil and redex[i+2] == "swap" then
         local x = redex[i]
         local y = redex[i+1]
-        return {i, i+2, {y, x}}
+        return {start=i, stop=i+2, replacement={y, x}}
     end
 
     -- else find first rule in rules that matches redex[i ... end]
@@ -78,7 +78,7 @@ function find_match(rules, redex, i)
             end
         end
         if matched then
-            return {i, i+(patlen-1), rule.replacement}
+            return {start=i, stop=i+(patlen-1), replacement=rule.replacement}
         end
     end
 
@@ -91,20 +91,19 @@ function run_wanda(redex)
     while start_index <= table.getn(redex) do
         match_info = find_match(rules, redex, start_index)
         if match_info ~= nil then
-            local i = match_info[1]
-            local j = match_info[2]
+            local i = match_info.start
+            local j = match_info.stop
 
             while i <= j do
                 table.remove(redex, i)
                 j = j - 1
             end
 
-            local replacement = match_info[3]
-            for n, v in ipairs(replacement) do
+            for n, v in ipairs(match_info.replacement) do
                 table.insert(redex, i + (n-1), v)
             end
 
-            local defn = match_info[4]
+            local defn = match_info.newrule
             if defn ~= nil then
                 table.insert(rules, defn)
             end
