@@ -110,10 +110,10 @@ we have defined a rule which matches `0 fact` and replaces
 it with `1`.  Rules are matched in source-code order.  So,
 with this, we can then say
 
-    > [ 0 fact -> 1 ]
-    > [ fact -> dup 1 - fact * ]
-    > 5 fact
-    > ===> 120
+    [ 0 fact -> 1 ]
+    [ fact -> dup 1 - fact * ]
+    5 fact
+    ===> 120
 
 Pseudo-code for interpretation
 ------------------------------

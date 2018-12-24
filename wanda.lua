@@ -22,6 +22,8 @@ function fmt(redex)
 end
 
 function find_match(rules, redex, i)
+    --print("*** at index " .. i .. " in: " .. fmt(redex))
+    --print("1. [...]")
     if redex[i] == "[" then
         local j = i + 1
         local pattern = {}
@@ -40,6 +42,7 @@ function find_match(rules, redex, i)
         return {start=i, stop=j, pattern={"[", "...", "]"}, replacement={}, newrule={pattern=pattern, replacement=replacement}}
     end
 
+    --print("2. A B arith")
     if is_number(redex[i]) and is_number(redex[i+1]) then
         local a = tonumber(redex[i])
         local b = tonumber(redex[i+1])
@@ -54,11 +57,13 @@ function find_match(rules, redex, i)
         end
     end
 
-    if redex[i] ~= nil and redex[i+i] == "dup" then
+    --print("3. X dup")
+    if redex[i+1] == "dup" then
         local x = redex[i]
         return {start=i, stop=i+1, pattern={redex[i], "dup"}, replacement={x, x}}
     end
 
+    --print("4. X Y swap")
     if redex[i] ~= nil and redex[i+1] ~= nil and redex[i+2] == "swap" then
         local x = redex[i]
         local y = redex[i+1]
@@ -68,6 +73,7 @@ function find_match(rules, redex, i)
     -- else find first rule in rules that matches redex[i ... end]
 
     for n, rule in ipairs(rules) do
+        --print("5. " .. fmt(rule.pattern) .. " -> " .. fmt(rule.replacement))
         local pattern = rule.pattern
         local patlen = table.getn(pattern)
         local matched = true
@@ -125,5 +131,6 @@ end
 
 local program = load_program(arg[1])
 local options = {}
+--options.trace = true
 local result = run_wanda(program, options)
 print(fmt(result))
