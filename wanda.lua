@@ -17,7 +17,7 @@ function is_number(atom)
     return (atom ~= nil and string.find(atom, "^[+-]?%d+$"))
 end
 
-function format_redex(redex)
+function fmt(redex)
     return table.concat(redex, " ")
 end
 
@@ -37,32 +37,32 @@ function find_match(rules, redex, i)
            end
            j = j + 1
         end
-        return {start=i, stop=j, replacement={}, newrule={pattern=pattern, replacement=replacement}}
+        return {start=i, stop=j, pattern={"[", "...", "]"}, replacement={}, newrule={pattern=pattern, replacement=replacement}}
     end
 
     if is_number(redex[i]) and is_number(redex[i+1]) then
         local a = tonumber(redex[i])
         local b = tonumber(redex[i+1])
         if redex[i+2] == "+" then
-            return {start=i, stop=i+2, replacement={tostring(a + b)}}
+            return {start=i, stop=i+2, pattern={redex[i], redex[i+1], "+"}, replacement={tostring(a + b)}}
         end
         if redex[i+2] == "*" then
-            return {start=i, stop=i+2, replacement={tostring(a * b)}}
+            return {start=i, stop=i+2, pattern={redex[i], redex[i+1], "*"}, replacement={tostring(a * b)}}
         end
         if redex[i+2] == "-" then
-            return {start=i, stop=i+2, replacement={tostring(a - b)}}
+            return {start=i, stop=i+2, pattern={redex[i], redex[i+1], "-"}, replacement={tostring(a - b)}}
         end
     end
 
     if redex[i] ~= nil and redex[i+i] == "dup" then
         local x = redex[i]
-        return {start=i, stop=i+1, replacement={x, x}}
+        return {start=i, stop=i+1, pattern={redex[i], "dup"}, replacement={x, x}}
     end
 
     if redex[i] ~= nil and redex[i+1] ~= nil and redex[i+2] == "swap" then
         local x = redex[i]
         local y = redex[i+1]
-        return {start=i, stop=i+2, replacement={y, x}}
+        return {start=i, stop=i+2, pattern={redex[i], redex[i+1], "swap"}, replacement={y, x}}
     end
 
     -- else find first rule in rules that matches redex[i ... end]
@@ -78,14 +78,14 @@ function find_match(rules, redex, i)
             end
         end
         if matched then
-            return {start=i, stop=i+(patlen-1), replacement=rule.replacement}
+            return {start=i, stop=i+(patlen-1), pattern=pattern, replacement=rule.replacement}
         end
     end
 
     return nil
 end
 
-function run_wanda(redex)
+function run_wanda(redex, options)
     rules = {}
     start_index = 1
     while start_index <= table.getn(redex) do
@@ -107,7 +107,12 @@ function run_wanda(redex)
             if defn ~= nil then
                 table.insert(rules, defn)
             end
-            --print("=> " .. format_redex(redex))
+
+            if options.trace then
+                local formatted_rule = fmt(match_info.pattern) .. " -> " .. fmt(match_info.replacement)
+                print("[" .. formatted_rule .. "] => " .. fmt(redex))
+            end
+
             start_index = 1
         else
             start_index = start_index + 1
@@ -119,5 +124,6 @@ end
 --[[========================= main ================= ]]--
 
 local program = load_program(arg[1])
-local result = run_wanda(program)
-print(format_redex(result))
+local options = {}
+local result = run_wanda(program, options)
+print(fmt(result))
