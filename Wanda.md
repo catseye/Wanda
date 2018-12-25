@@ -60,17 +60,23 @@ Also note that all the numbers are 64-bit signed ints.
 Defining functions
 ------------------
 
-Wanda supports a special form which gets rewritten into
-nothing, but defines a function as a side-effect.  It
-is similar to Forth's `: ... ;` form.
+Wanda supports a special form for defining functions,
+which is very similar to Forth's `:` ... `;` block.
+The main difference is that there is a `->` operator
+inside it, which you can think of as a way to making
+it explicit where the function naming ends and the
+definition begins.
 
-    [ perim -> + 2 * ]
+    : perim -> + 2 * ;
     4 10 perim
     ===> 28
 
-You can in fact think of defining a function as
-introducing a new rule which matches the symbol
-`perim` and replaces it by its definition, like so:
+You can in fact think of this special form as something
+that gets rewritten into nothingness and which
+introduces a new rule as a side effect.  The new rule
+matches the function naming (in this case `perim`) and
+replaces it by its definition (in this case `+ 2 *`),
+like so:
 
     4 10 + 2 *
 
@@ -83,7 +89,7 @@ Recursion
 If we include the name of a function in its definition,
 recursion ought to happen.  For example if we said
 
-    [ fact -> dup 1 - fact * ]
+    : fact -> dup 1 - fact * ;
 
 then
 
@@ -104,14 +110,14 @@ Well, this is what the extra `->` is for in a definition --
 so that we can tell what is the pattern and what is the
 replacement.  If we say
 
-    [ 0 fact -> 1 ]
+    : 0 fact -> 1 ;
 
 we have defined a rule which matches `0 fact` and replaces
 it with `1`.  Rules are matched in source-code order.  So,
 with this, we can then say
 
-    [ 0 fact -> 1 ]
-    [ fact -> dup 1 - fact * ]
+    : 0 fact -> 1 ;
+    : fact -> dup 1 - fact * ;
     5 fact
     ===> 120
 

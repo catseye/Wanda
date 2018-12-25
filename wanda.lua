@@ -1,3 +1,8 @@
+---
+--- wanda.lua - Reference implementation of the Wanda programming language
+--- 2019, Chris Pressey, Cat's Eye Technologies
+---
+
 function parse_program(program)
     redex = {}
     for token in string.gmatch(program, "[^%s]+") do
@@ -22,14 +27,12 @@ function fmt(redex)
 end
 
 function find_match(rules, redex, i)
-    --print("*** at index " .. i .. " in: " .. fmt(redex))
-    --print("1. [...]")
-    if redex[i] == "[" then
+    if redex[i] == ":" then
         local j = i + 1
         local pattern = {}
         local replacement = {}
         local seen_arrow = false
-        while redex[j] ~= "]" and redex[j] ~= nil do
+        while redex[j] ~= ";" and redex[j] ~= nil do
            if redex[j] == "->" then
                seen_arrow = true
            elseif seen_arrow then
@@ -39,10 +42,9 @@ function find_match(rules, redex, i)
            end
            j = j + 1
         end
-        return {start=i, stop=j, pattern={"[", "...", "]"}, replacement={}, newrule={pattern=pattern, replacement=replacement}}
+        return {start=i, stop=j, pattern={":", "...", ";"}, replacement={}, newrule={pattern=pattern, replacement=replacement}}
     end
 
-    --print("2. A B arith")
     if is_number(redex[i]) and is_number(redex[i+1]) then
         local a = tonumber(redex[i])
         local b = tonumber(redex[i+1])
@@ -57,13 +59,11 @@ function find_match(rules, redex, i)
         end
     end
 
-    --print("3. X dup")
     if redex[i+1] == "dup" then
         local x = redex[i]
         return {start=i, stop=i+1, pattern={redex[i], "dup"}, replacement={x, x}}
     end
 
-    --print("4. X Y swap")
     if redex[i] ~= nil and redex[i+1] ~= nil and redex[i+2] == "swap" then
         local x = redex[i]
         local y = redex[i+1]
@@ -73,7 +73,6 @@ function find_match(rules, redex, i)
     -- else find first rule in rules that matches redex[i ... end]
 
     for n, rule in ipairs(rules) do
-        --print("5. " .. fmt(rule.pattern) .. " -> " .. fmt(rule.replacement))
         local pattern = rule.pattern
         local patlen = table.getn(pattern)
         local matched = true
@@ -116,7 +115,7 @@ function run_wanda(redex, options)
 
             if options.trace then
                 local formatted_rule = fmt(match_info.pattern) .. " -> " .. fmt(match_info.replacement)
-                print("[" .. formatted_rule .. "] => " .. fmt(redex))
+                print(":" .. formatted_rule .. "; => " .. fmt(redex))
             end
 
             start_index = 1
