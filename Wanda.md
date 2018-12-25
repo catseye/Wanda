@@ -1,10 +1,12 @@
 Wanda
 =====
 
-Wanda is a Forth-like language with string-rewriting semantics,
-meaning it is arguably not fair to call it "concatenative",
-or even "stack-based".  (For a more detailed explanation of what
-these things mean, see the Tutorial section.)
+Wanda is a Forth-like language.  Despite being Forth-like, it
+is arguably not fair to call it "concatenative", or even
+"stack-based", because it is based on a string-rewriting semantics.
+
+The remainder of this document will describe the language and
+will attempt to elucidate the above statement.
 
 Basics
 ------
@@ -39,6 +41,13 @@ and evaluation terminates.
 
     2 +
     ===> 2 +
+
+So, we see that, despite looking like and evaluating
+like a Forth program, there is no stack separate from
+the program.  "2" is not an instruction that pushes
+the value 2 onto the stack, it's just a "2".
+
+It's all just a string which gets rewritten.
 
 ### Some other builtins
 
