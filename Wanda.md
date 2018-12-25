@@ -10,7 +10,7 @@ Basics
 ------
 
     -> Functionality "Run Wanda program" is implemented by
-    -> shell command "lua wanda.lua %(test-body-file)"
+    -> shell command "lua src/wanda.lua %(test-body-file)"
 
     -> Tests for functionality "Run Wanda program"
 
