@@ -119,14 +119,24 @@ can specify both the pattern and the replacement.  So, if we say
     : 0 fact -> 1 ;
 
 we have defined a rule which matches `0 fact` and replaces it with `1`.
-Recalling that rules are matched in source-code order, we need to be careful
-to put this before the other definition of `fact`; but once we do, we can
-happily say:
 
     : 0 fact -> 1 ;
     : fact -> dup 1 - fact * ;
     5 fact
     ===> 120
+
+On the surface it may seem like the order of rule application matters in
+the above, but in fact it does not:
+
+    : fact -> dup 1 - fact * ;
+    : 0 fact -> 1 ;
+    5 fact
+    ===> 120
+
+This is because the string is searched left-to-right for the first match,
+and if the string contains `0 fact`, this will always match `0 fact` before
+we're even in a position to check the parts of the string to the right of
+the `0` for the pattern `fact`.
 
 Computational class
 -------------------
@@ -140,29 +150,30 @@ We've already seen it can compute factorial, which means
 it's moderately powerful — but that by itself doesn't mean it's
 Turing-complete.
 
-It's well-known that with a strict stack discipline, and a bound set of
-elements that can go on the stack, a language is only as powerful as a
-push-down automaton, and isn't Turing-complete.  However, `swap` violates
-the strict stack discipline (it allows the program to access the top two
-elements of the stack arbitrarily), and we haven't said if the set of
-stack elements is bounded or not — if they're unbounded integers, you
-could build a 2-register machine.
+It's well-known that with a strict stack discipline, you only have
+a push-down automaton, not a Turing machine.  However, we don't have
+that, in two ways.  One, `swap` violates the strict stack discipline,
+as it allows the program to access the top two elements of the stack
+arbitrarily.  Two, we haven't said if the stack elements come from
+a finite set or not — if they're unbounded integers, you can use
+that fact, plus `swap`, to build a [2-register machine][].
 
-So let's say integers on the stack are bounded (32-bit signed integers
-or something by default), to exclude that possibility.
+So let's say integers on the stack are bounded (say, 32-bit signed integers
+by default), to exclude that possibility.
 
-But all that above in fact assumes this is a traditional stack-based language,
+But all the above in fact assumes this is a traditional stack-based language,
 which it's not!  It's a string-rewriting language, and it naturally has
 access to the deep parts of the stack, because it looks for patterns in them.
 
-In fact it can work basically as [Thue][] does.  The order in which rules
-are applied is known instead of being unspecified (nondeterministic), but
-that's not an impediment from the perspective of seeing what it can compute —
-a program which is written to accomodate an unspecified rewriting order
-will also work when the order is specified and fixed, as it is here.
+In fact it ought to work basically as [Thue][] does.  The order in which
+rules are applied is known instead of being unspecified (nondeterministic),
+but that's not an impediment from the perspective of seeing what it can
+compute — a program which is written to accomodate an unspecified rewriting
+order will also work when the order is specified and fixed, as it is here.
 
 So Wanda is Turing-complete if Thue is, and Thue is.
 
+[2-register machine]: https://esolangs.org/wiki/Minsky_machine
 [Thue]: https://esolangs.org/wiki/Thue
 
 History

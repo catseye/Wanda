@@ -110,7 +110,7 @@ function run_wanda(redex, options)
 
             local defn = match_info.newrule
             if defn ~= nil then
-                table.insert(rules, defn)
+                table.insert(rules, 1, defn)
             end
 
             if options.trace then
