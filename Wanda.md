@@ -51,8 +51,8 @@ pushes the value 2 onto the stack; it's just a "2".
 We've seen `+` and `*`, which are built-in rules.
 There are a couple of other built-in rules.
 
-    7 3 -
-    ===> 4
+    7 sgn 0 sgn -14 sgn
+    ===> 1 0 -1
 
     4 dup
     ===> 4 4

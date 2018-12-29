@@ -59,6 +59,19 @@ function find_match(rules, redex, i)
         end
     end
 
+    if is_number(redex[i]) then
+        local a = tonumber(redex[i])
+        if redex[i+1] == "sgn" then
+            if a > 0 then
+                return {start=i, stop=i+1, pattern={redex[i], "sgn"}, replacement={"1"}}
+            elseif a == 0 then
+                return {start=i, stop=i+1, pattern={redex[i], "sgn"}, replacement={"0"}}
+            else
+                return {start=i, stop=i+1, pattern={redex[i], "sgn"}, replacement={"-1"}}
+            end
+        end
+    end
+
     if redex[i+1] == "dup" then
         local x = redex[i]
         return {start=i, stop=i+1, pattern={redex[i], "dup"}, replacement={x, x}}
