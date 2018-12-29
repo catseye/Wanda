@@ -54,6 +54,9 @@ There are a couple of other built-in rules.
     7 sgn 0 sgn -14 sgn
     ===> 1 0 -1
 
+    5 4 pop
+    ===> 5
+
     4 dup
     ===> 4 4
 

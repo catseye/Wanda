@@ -1,0 +1,6 @@
+: mod5 -> 5 - dup sgn cont5 ;
+: 1 cont5 -> mod5 ;
+: 0 cont5 -> pop 0 ;
+: -1 cont5 -> 5 + ;
+
+27 mod5 30 mod5 31 mod5

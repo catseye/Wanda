@@ -72,6 +72,10 @@ function find_match(rules, redex, i)
         end
     end
 
+    if redex[i+1] == "pop" then
+        return {start=i, stop=i+1, pattern={redex[i], "pop"}, replacement={}}
+    end
+
     if redex[i+1] == "dup" then
         local x = redex[i]
         return {start=i, stop=i+1, pattern={redex[i], "dup"}, replacement={x, x}}
