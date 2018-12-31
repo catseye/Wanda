@@ -45,46 +45,52 @@ function find_match(rules, redex, i)
         return {start=i, stop=j, pattern={":", "...", ";"}, replacement={}, newrule={pattern=pattern, replacement=replacement}}
     end
 
-    if is_number(redex[i]) and is_number(redex[i+1]) then
+    if is_number(redex[i]) and is_number(redex[i+1]) and redex[i+2] == "$" then
         local a = tonumber(redex[i])
         local b = tonumber(redex[i+1])
-        if redex[i+2] == "+" then
-            return {start=i, stop=i+2, pattern={redex[i], redex[i+1], "+"}, replacement={tostring(a + b)}}
+        local op = redex[i+3]
+        if op == "+" then
+            return {start=i, stop=i+3, pattern={redex[i], redex[i+1], "$", "+"}, replacement={tostring(a + b), "$"}}
         end
-        if redex[i+2] == "*" then
-            return {start=i, stop=i+2, pattern={redex[i], redex[i+1], "*"}, replacement={tostring(a * b)}}
+        if op == "*" then
+            return {start=i, stop=i+3, pattern={redex[i], redex[i+1], "$", "*"}, replacement={tostring(a * b), "$"}}
         end
-        if redex[i+2] == "-" then
-            return {start=i, stop=i+2, pattern={redex[i], redex[i+1], "-"}, replacement={tostring(a - b)}}
+        if op == "-" then
+            return {start=i, stop=i+3, pattern={redex[i], redex[i+1], "$", "-"}, replacement={tostring(a - b), "$"}}
         end
     end
 
-    if is_number(redex[i]) then
+    if is_number(redex[i]) and redex[i+1] == "$" then
         local a = tonumber(redex[i])
-        if redex[i+1] == "sgn" then
+        local op = redex[i+2]
+        if op == "sgn" then
             if a > 0 then
-                return {start=i, stop=i+1, pattern={redex[i], "sgn"}, replacement={"1"}}
+                return {start=i, stop=i+2, pattern={redex[i], "$", "sgn"}, replacement={"1", "$"}}
             elseif a == 0 then
-                return {start=i, stop=i+1, pattern={redex[i], "sgn"}, replacement={"0"}}
+                return {start=i, stop=i+2, pattern={redex[i], "$", "sgn"}, replacement={"0", "$"}}
             else
-                return {start=i, stop=i+1, pattern={redex[i], "sgn"}, replacement={"-1"}}
+                return {start=i, stop=i+2, pattern={redex[i], "$", "sgn"}, replacement={"-1", "$"}}
             end
         end
     end
 
-    if redex[i+1] == "pop" then
-        return {start=i, stop=i+1, pattern={redex[i], "pop"}, replacement={}}
+    if redex[i] ~= nil and redex[i+1] == "$" and redex[i+2] == "pop" then
+        return {start=i, stop=i+2, pattern={redex[i], "$", "pop"}, replacement={"$"}}
     end
 
-    if redex[i+1] == "dup" then
+    if redex[i] ~= nil and redex[i+1] == "$" and redex[i+2] == "dup" then
         local x = redex[i]
-        return {start=i, stop=i+1, pattern={redex[i], "dup"}, replacement={x, x}}
+        return {start=i, stop=i+2, pattern={x, "$", "dup"}, replacement={x, x, "$"}}
     end
 
-    if redex[i] ~= nil and redex[i+1] ~= nil and redex[i+2] == "swap" then
+    if redex[i] ~= nil and redex[i+1] ~= nil and redex[i+2] == "$" and redex[i+3] == "swap" then
         local x = redex[i]
         local y = redex[i+1]
-        return {start=i, stop=i+2, pattern={redex[i], redex[i+1], "swap"}, replacement={y, x}}
+        return {start=i, stop=i+3, pattern={redex[i], redex[i+1], "$", "swap"}, replacement={y, x, "$"}}
+    end
+
+    if redex[i] == "$" and is_number(redex[i+1]) then
+        return {start=i, stop=i+1, pattern={"$", redex[i+1]}, replacement={redex[i+1], "$"}}
     end
 
     -- else find first rule in rules that matches redex[i ... end]
