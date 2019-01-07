@@ -51,12 +51,11 @@ from the program (on the right).  When constants are encountered in the
 program, they are pushed onto the stack.
 
 But if you do think of it this way, keep in mind that it is only a
-a convenient illusion.
-
-Despite looking like and evaluating like a Forth program, there is no
-"stack" that is distinct from the program -- it's all just a string which
-gets rewritten.  "2" is neither an element on the stack, nor an instruction
-that pushes the value 2 onto the stack; it's just a "2".
+convenient illusion.  For despite mostly looking like and evaluating like a
+Forth program, there is no "stack" that is distinct from the program — it's
+all just a string that gets rewritten.  `2` is neither an element on the
+stack, nor an instruction that pushes the value 2 onto the stack; it's just
+a `2`.
 
 ### Some other builtins
 
@@ -107,7 +106,8 @@ that is to say, source-code order:
 Note there is another restriction: exactly one `$` symbol must occur to
 the left of the `->`, and exactly one `$` symbol must occur to the right
 of the `->` as well.  Often the `$` will simply be in the leftmost
-position in both of these occurrences, as in the example above.
+position in both of these occurrences, as in the example above, but this
+is not required.
 
 Recursion
 ---------
@@ -126,8 +126,8 @@ would rewrite to
     4 $ dup 1 - fact *
 
 which is fine, the next `fact` will get rewritten the same way in due course,
-all fine except for the fact that it will never terminate because we haven't
-given a base case.
+all fine except for the troublesome matter of it never terminating because we
+haven't given a base case.
 
 What would be great would be some way for `0 fact` to be immediately rewritten
 into `1` instead of recursing.
@@ -161,22 +161,16 @@ the `0` for the pattern `fact`.
 Computational class
 -------------------
 
-If we stop here, what kinds of things can Wanda compute?
+We can ask ourselves: if we stop here (and perhaps call what we've got so
+far **Core Wanda**), what kinds of things can we compute with it?
 
-And, in fact, let's stop here for now and call what we have to far
-**Core Wanda**, and ask: what kinds of things can Core Wanda compute?
+Well, we have a stack discipline, and it's well-known that if you have
+a strict stack discipline you have a push-down automaton, not a Turing
+machine.
 
-We've already seen it can compute factorial, which means
-it's moderately powerful — but that by itself doesn't mean it's
-Turing-complete.
-
-It's well-known that with a strict stack discipline, you only have
-a push-down automaton, not a Turing machine.  However, we don't have
-that, in two ways.  One, `swap` violates the strict stack discipline,
-as it allows the program to access the top two elements of the stack
-arbitrarily.  Two, we haven't said if the stack elements come from
-a finite set or not — if they're unbounded integers, you can use
-that fact, plus `swap`, to build a [2-register machine][].
+But we don't have a strict stack discipline — we have `swap`, so we have
+arbitrary access to two registers, and if they can contain unbounded
+values, we can build a [2-register machine][].
 
 So let's say integers on the stack are bounded (say, 32-bit signed integers
 by default), to exclude that possibility.
@@ -185,16 +179,72 @@ But all the above in fact assumes this is a traditional stack-based language,
 which it's not!  It's a string-rewriting language, and it naturally has
 access to the deep parts of the stack, because it looks for patterns in them.
 
-In fact it ought to work basically as [Thue][] does.  The order in which
-rules are applied is known instead of being unspecified (nondeterministic),
-but that's not an impediment from the perspective of seeing what it can
-compute — a program which is written to accomodate an unspecified rewriting
-order will also work when the order is specified and fixed, as it is here.
+In fact, from this viewpoint, the language looks a lot like a deterministic
+version of [Thue][].  And Thue is Turing-complete, and the additional
+determinism isn't an impediment from the perspective of seeing what it can
+compute (a program which is written to accomodate an unspecified rewriting
+order will also work when the order is specified and fixed).
 
-So Wanda is Turing-complete if Thue is, and Thue is.
+However, there's an intentional twist: every rewrite rule must contain
+exactly one `$` on the left and exactly one `$` on the right.
+
+If the redex (the string currently being rewritten) likewise contains
+exactly one `$`, I _think_ (but have not proved) that this limits the kinds
+of rewrites that can be undertaken in exactly the same way a strict
+stack discipline does, i.e. it can only compute what a push-down automaton
+can compute.
+
+However,
+
+*   as I said, I haven't proved this, and actually I'm starting to doubt
+    it, as, if the set of elements that can go on the stack is finite,
+    the user can write rules similar to the ones below, even if they
+    don't have pattern matching capabilities, OK, let's rethink this.
+*   we haven't restricted the redex to containing exactly one `$` and I
+    haven't thought through what the implications of having more than one
+    `$` in it are anyway.
+
+So the approach we'll take in the remainder of this document is to
+add some features and show that they make the language Turing-complete,
+even if Core Wanda already is.
 
 [2-register machine]: https://esolangs.org/wiki/Minsky_machine
 [Thue]: https://esolangs.org/wiki/Thue
+
+Concrete Shoes and Fishing Lines
+--------------------------------
+
+Let's introduce some built-in rules that allow us to manipulate values
+at the left end of the string, i.e. deep in the "stack".  This should
+allow us to construct a Tag system, and be Turing-complete that way,
+if we like.
+
+In fact, since we're imagining part of this string is a "stack" anyway,
+we might as well go further and imagine it's a body of water.
+
+To store a value on the left end of the string, what we'll do is
+"tie a weight" to it and let it "sink" to the bottom.  When we need it
+again, we'll "fish it out".
+
+    1 2 3 4 5 $ 99 sink
+    ===> 99 1 2 3 4 5 $
+
+It might be illustrative to watch the trace of this.  It should be
+something like:
+
+    1 2 3 4 5 $ 99 sink
+    1 2 3 4 $ 99 sinking 5
+    1 2 3 $ 99 sinking 4 5
+    1 2 $ 99 sinking 3 4 5
+    1 $ 99 sinking 2 3 4 5
+    $ 99 sinking 1 2 3 4 5
+    99 $ bubble 1 2 3 4 5
+    99 1 $ bubble 2 3 4 5
+    99 1 2 $ bubble 3 4 5
+    99 1 2 3 $ bubble 4 5
+    99 1 2 3 4 $ bubble 5
+    99 1 2 3 4 5 $ bubble
+    99 1 2 3 4 5 $
 
 History
 -------
