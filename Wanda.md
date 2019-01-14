@@ -14,6 +14,9 @@ Basics
     -> Functionality "Run Wanda program" is implemented by
     -> shell command "python src/wanda.py %(test-body-file)"
 
+    -> Functionality "Trace Wanda program" is implemented by
+    -> shell command "python src/wanda.py --trace %(test-body-file) | head -n 15"
+
     -> Tests for functionality "Run Wanda program"
 
 A Wanda program is a string of symbols.  Each symbol consist of one or more
@@ -143,6 +146,16 @@ form, but it not introduce any new rules.
     ten
     ===> $ ten
 
+    $
+    : $ $ ten -> $ 10 ;
+    ten
+    ===> $ ten
+
+    $
+    : $ ten -> $ $ 10 ;
+    ten
+    ===> $ ten
+
 Often the `$` will appear in the leftmost position in both the pattern
 and the replacement, as in the above examples, but this is not required.
 
@@ -150,21 +163,45 @@ Recursion
 ---------
 
 If we include the name of a function in its definition, recursion ought to
-happen.  For example if we said
+happen.  And indeed, it does.  For example if we said
 
     : $ fact -> $ dup 1 - fact * ;
 
 then
 
-    4 $ fact
+    3 $ fact
 
 would rewrite to
 
-    4 $ dup 1 - fact *
+    3 $ dup 1 - fact *
 
 which is fine, the next `fact` will get rewritten the same way in due course,
 all fine except for the troublesome matter of it never terminating because we
-haven't given a base case.
+haven't given a base case.  Viewing the trace of execution for the first few
+steps makes this clear:
+
+    -> Tests for functionality "Trace Wanda program"
+
+    3 $
+    : $ fact -> $ dup 1 - fact * ;
+    fact
+    ===> 3 $ fact
+    ===> 3 $ dup 1 - fact *
+    ===> 3 3 $ 1 - fact *
+    ===> 3 3 1 $ - fact *
+    ===> 3 2 $ fact *
+    ===> 3 2 $ dup 1 - fact * *
+    ===> 3 2 2 $ 1 - fact * *
+    ===> 3 2 2 1 $ - fact * *
+    ===> 3 2 1 $ fact * *
+    ===> 3 2 1 $ dup 1 - fact * * *
+    ===> 3 2 1 1 $ 1 - fact * * *
+    ===> 3 2 1 1 1 $ - fact * * *
+    ===> 3 2 1 0 $ fact * * *
+    ===> 3 2 1 0 $ dup 1 - fact * * * *
+    ===> 3 2 1 0 0 $ 1 - fact * * * *
+
+    -> Tests for functionality "Run Wanda program"
 
 What would be great would be some way for `0 fact` to be immediately rewritten
 into `1` instead of recursing.

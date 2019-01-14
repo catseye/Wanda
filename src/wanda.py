@@ -115,9 +115,8 @@ def run_wanda(redex, options):
             if defn:
                 rules.insert(0, defn)
 
-            # if options.trace then
-            #     local formatted_rule = fmt(match_info.pattern) .. " -> " .. fmt(match_info.replacement)
-            #     print(":" .. formatted_rule .. "; => " .. fmt(redex))
+            if options.get('trace'):
+                print(fmt(redex))
 
             start_index = 0
         else:
@@ -127,8 +126,12 @@ def run_wanda(redex, options):
 
 
 def main(args):
+    options = {}
+    if args[0] == '--trace':
+        options['trace'] = True
+        args = args[1:]
     program = load_program(args[0])
-    result = run_wanda(program, {})
+    result = run_wanda(program, options)
     print(fmt(result))
 
 
