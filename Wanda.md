@@ -71,6 +71,14 @@ There are a couple of other built-in rules.
     4 $ dup
     ===> 4 4 $
 
+The numbers that the arithmetic operations work on, are unbounded integers.
+The following example is of course no proof of that, but it's illustrative:
+
+    $ 1000000000000000 1000000000000001 + dup *
+    ===> 4000000000000004000000000000001 $
+
+This fact will become important later on.
+
 Defining functions
 ------------------
 
@@ -116,11 +124,27 @@ You can think of this as functions being redefined.
 
 Note there is another restriction: exactly one `$` symbol must occur to
 the left of the `->`, and exactly one `$` symbol must occur to the right
-of the `->` as well.  Often the `$` will simply be in the leftmost
-position in both of these occurrences, as in the example above, but this
-is not required.
+of the `->` as well.  If this is not the case, the implementation may
+flag up some kind of warning, but at any rate, it will erase the special
+form, but it not introduce any new rules.
 
-    TODO failing exmple
+    $
+    : $ ten -> 10 ;
+    ten
+    ===> $ ten
+
+    $
+    : ten -> $ 10 ;
+    ten
+    ===> $ ten
+
+    $
+    : ten -> 10 ;
+    ten
+    ===> $ ten
+
+Often the `$` will appear in the leftmost position in both the pattern
+and the replacement, as in the above examples, but this is not required.
 
 Recursion
 ---------
@@ -183,7 +207,11 @@ Well, we have a stack discipline, and it's well-known that if you have
 a strict stack discipline you have a push-down automaton, not a Turing
 machine.
 
-But that assumes this is a traditional stack-based language,
+We do have unbounded integers, so if we had division, or `swap`, we might
+be able to make a 1-counter or 2-counter [Minsky machine][].  But we don't
+have those operations.
+
+And anyway, that all assumes this is a traditional stack-based language,
 which it's not!  It's a string-rewriting language, and it naturally has
 access to the deep parts of the stack, because it looks for patterns in them.
 
@@ -202,22 +230,26 @@ of rewrites that can be undertaken in exactly the same way a strict
 stack discipline does, i.e. it can only compute what a push-down automaton
 can compute.
 
-However,
+There is a caveat here: it relies on the fact that user-defined rules
+can't have patterns with variables.  Thue's strings are defined over a
+finite alphabet, so you can simulate a pattern having variables by
+exhaustively listing all the possible symbols that could be matched,
+and having one rule for each combination.  e.g. you can say
+`1+1=2`, `1+2=3`, `1+3=4`, etc., etc.  But you *can't* do that in Wanda,
+because Wanda has unbounded integers.
 
-*   as I said, I haven't proved this, and it relies on the fact that
-    user-defined rules can't have patterns with variables and that we
-    can't simulate variables over a finite set of possible elements
-    they can match by introducing one rule for every element of that
-    finite set.
-*   we haven't restricted the redex to containing exactly one `$` and I
-    haven't thought through what the implications of having more than one
-    `$` in it are anyway.
+Also, we haven't restricted the redex to containing exactly one `$` and I
+haven't fully thought through the implications of having more than one
+`$` in it.  And I haven't got a proof for any of this anyway.
 
 So the approach we'll take in the remainder of this document is to
 add some features and show that they make the language Turing-complete,
 even if Core Wanda already is.
 
-[2-register machine]: https://esolangs.org/wiki/Minsky_machine
+(And after that I might just go wild and add variables in user-defined
+rules anyway.)
+
+[Minsky machine]: https://esolangs.org/wiki/Minsky_machine
 [Thue]: https://esolangs.org/wiki/Thue
 
 Concrete Shoes and Fishing Lines

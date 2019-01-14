@@ -40,12 +40,16 @@ def find_match(rules, redex, i):
                pattern.append(redex[j])
            j += 1
 
+        newrule = None
+        if len([s for s in pattern if s == "$"]) == 1 and len([s for s in replacement if s == "$"]) == 1:
+            newrule=dict(pattern=pattern, replacement=replacement)
+
         return dict(
             start=i,
             stop=j,
             pattern=["$", ":", "...", ";"],
             replacement=["$"],
-            newrule=dict(pattern=pattern, replacement=replacement),
+            newrule=newrule,
         )
 
     if is_number(r0) and is_number(r1) and r2 == "$":
