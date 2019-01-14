@@ -79,8 +79,9 @@ Forth's `:` ... `;` block.  The main difference is that there is a `->` symbol
 inside it, which you can think of as a way to making it explicit where the
 function naming ends and the function definition begins.
 
+    4 10 $
     : $ perim -> $ + 2 * ;
-    4 10 $ perim
+    perim
     ===> 28 $
 
 You can in fact think of this special form as something that gets rewritten
@@ -92,19 +93,34 @@ and replaces it with its definition (in this case `+ 2 *`), like so:
 
 (And then evaluation continues as usual to obtain the final result.)
 
-Note that these rules are applied in the order in which they are defined,
-that is to say, source-code order:
+Some things to note:
 
+This special form only gets rewritten when it appears immediately to the
+right of a `$`.
+
+    : $ foo -> $ ; $ 1 2 +
+    ===> : $ foo -> $ ; 3 $
+
+So, you can think of this special form as something that is "executed"
+in the same way the builtins we've described above are.
+
+Rules defined this way are applied in the order in which they were defined.
+You can think of this as functions being redefined.
+
+    $
     : $ ten -> $ 10 ;
+    ten
     : $ ten -> $ 11 ;
-    $ ten
-    ===> 11 $
+    ten
+    ===> 10 11 $
 
 Note there is another restriction: exactly one `$` symbol must occur to
 the left of the `->`, and exactly one `$` symbol must occur to the right
 of the `->` as well.  Often the `$` will simply be in the leftmost
 position in both of these occurrences, as in the example above, but this
 is not required.
+
+    TODO failing exmple
 
 Recursion
 ---------
@@ -137,17 +153,19 @@ can specify both the pattern and the replacement.  So, if we say
 we have defined a rule which matches `0 $ fact` and replaces it with `$ 1`
 (which will immediatey rewrite to `1 $`).  Thus the recursion can terminate:
 
+    $
     : 0 $ fact -> $ 1 ;
     : $ fact -> $ dup 1 - fact * ;
-    $ 5 fact
+    5 fact
     ===> 120 $
 
 At first blush it may seem like the order of rule application matters in
 the above, but in fact it does not:
 
+    $
     : $ fact -> $ dup 1 - fact * ;
     : 0 $ fact -> $ 1 ;
-    $ 5 fact
+    5 fact
     ===> 120 $
 
 This is because the string is searched left-to-right for the first match,

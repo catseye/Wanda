@@ -25,8 +25,8 @@ def find_match(rules, redex, i):
     r2 = redex[i+2] if i+2 < len(redex) else None
     r3 = redex[i+3] if i+3 < len(redex) else None
 
-    if r0 == ":":
-        j = i + 1
+    if r0 == "$" and r1 == ":":
+        j = i + 2
         pattern = []
         replacement = []
         seen_arrow = False
@@ -43,8 +43,8 @@ def find_match(rules, redex, i):
         return dict(
             start=i,
             stop=j,
-            pattern=[":", "...", ";"],
-            replacement=[],
+            pattern=["$", ":", "...", ";"],
+            replacement=["$"],
             newrule=dict(pattern=pattern, replacement=replacement),
         )
 
