@@ -1,9 +1,9 @@
 Wanda
 =====
 
-Wanda is a Forth-like language.  Despite being Forth-like, however, it is
-arguably inappropriate to call it "concatenative", or even "stack-based",
-because it is based on a string-rewriting semantics.
+Wanda is a Forth-like language.  However, despite being Forth-like, it seems
+unfair to call it "concatenative", or even "stack-based", because it is based
+on a string-rewriting semantics.
 
 The remainder of this document will describe the language and will attempt
 to justify the above statement.
@@ -16,11 +16,11 @@ Basics
 
     -> Tests for functionality "Run Wanda program"
 
-A Wanda expression is a string of symbols.  Each symbol consist of one or more
+A Wanda program is a string of symbols.  Each symbol consist of one or more
 non-whitespace characters.  In the string, symbols are separated by whitespace.
 
-Here is a legal Wanda expression.  (The `===>` is not part of the expression;
-it shows the expected result of running the program.)
+Here is a legal Wanda program.  (The `===>` is not part of the program;
+it only shows the expected result of running it.)
 
     $ 2 3 + 4 *
     ===> 20 $
@@ -29,9 +29,9 @@ Evaluation happens by successively rewriting parts of this string of symbols.
 For example, in the above,
 
 *   `$ 2` is rewritten into `2 $`
-*   `$ 3` is rewritten into `3 $`
-*   `2 3 $ +` is rewritten into `5 $`
-*   `$ 4` is rewritten into `4 $`
+*   `$ 3` is then rewritten into `3 $`
+*   `2 3 $ +` is then rewritten into `5 $`
+*   `$ 4` is then rewritten into `4 $`
 *   finally, `5 4 $ *` is rewritten into `20 $`.
 
 Rewrites occur when parts of the string match the pattern of one of the
