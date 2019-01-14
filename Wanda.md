@@ -272,12 +272,18 @@ can't have patterns with variables.  Thue's strings are defined over a
 finite alphabet, so you can simulate a pattern having variables by
 exhaustively listing all the possible symbols that could be matched,
 and having one rule for each combination.  e.g. you can say
-`1+1=2`, `1+2=3`, `1+3=4`, etc., etc.  But you *can't* do that in Wanda,
-because Wanda has unbounded integers.
+`1+1=2`, `1+2=3`, `1+3=4`, etc., etc.
 
-Also, we haven't restricted the redex to containing exactly one `$` and I
-haven't fully thought through the implications of having more than one
-`$` in it.  And I haven't got a proof for any of this anyway.
+If you could do that in Wanda, you could simulate Thue by writing rules
+just like Thue's and just regarding the `$` as a nuisance that you carry
+around with you as you go.
+
+But you *can't* do that in Wanda, because Wanda has unbounded integers.
+So I dunno.
+
+Anyway, we haven't restricted the redex to containing exactly one `$` and
+I haven't fully thought through the implications of having more than one
+`$` in it, and still, I haven't got a proof for any of this.
 
 So the approach we'll take in the remainder of this document is to
 add some features and show that they make the language Turing-complete,
@@ -304,25 +310,24 @@ To store a value on the left end of the string, what we'll do is
 "tie a weight" to it and let it "sink" to the bottom.  When we need it
 again, we'll "fish it out".
 
-    # 1 2 3 4 5 $ 99 sink
-    # ===> 99 1 2 3 4 5 $
+It might be illustrative to show the trace of this.
 
-It might be illustrative to watch the trace of this.  It should be
-something like:
+    -> Tests for functionality "Trace Wanda program"
 
     1 2 3 4 5 $ 99 sink
-    1 2 3 4 $ 99 sinking 5
-    1 2 3 $ 99 sinking 4 5
-    1 2 $ 99 sinking 3 4 5
-    1 $ 99 sinking 2 3 4 5
-    $ 99 sinking 1 2 3 4 5
-    99 $ bubble 1 2 3 4 5
-    99 1 $ bubble 2 3 4 5
-    99 1 2 $ bubble 3 4 5
-    99 1 2 3 $ bubble 4 5
-    99 1 2 3 4 $ bubble 5
-    99 1 2 3 4 5 $ bubble
-    99 1 2 3 4 5 $
+    ===> 1 2 3 4 5 $ 99 sink
+    ===> 1 2 3 4 $ 99 sinking 5
+    ===> 1 2 3 $ 99 sinking 4 5
+    ===> 1 2 $ 99 sinking 3 4 5
+    ===> 1 $ 99 sinking 2 3 4 5
+    ===> $ 99 sinking 1 2 3 4 5
+    ===> 99 $ bubble 1 2 3 4 5
+    ===> 99 1 $ bubble 2 3 4 5
+    ===> 99 1 2 $ bubble 3 4 5
+    ===> 99 1 2 3 $ bubble 4 5
+    ===> 99 1 2 3 4 $ bubble 5
+    ===> 99 1 2 3 4 5 $ bubble
+    ===> 99 1 2 3 4 5 $
 
 History
 -------
