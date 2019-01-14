@@ -71,9 +71,6 @@ There are a couple of other built-in rules.
     4 $ dup
     ===> 4 4 $
 
-    4 5 $ swap
-    ===> 5 4 $
-
 Defining functions
 ------------------
 
@@ -168,14 +165,7 @@ Well, we have a stack discipline, and it's well-known that if you have
 a strict stack discipline you have a push-down automaton, not a Turing
 machine.
 
-But we don't have a strict stack discipline — we have `swap`, so we have
-arbitrary access to two registers, and if they can contain unbounded
-values, we can build a [2-register machine][].
-
-So let's say integers on the stack are bounded (say, 32-bit signed integers
-by default), to exclude that possibility.
-
-But all the above in fact assumes this is a traditional stack-based language,
+But that assumes this is a traditional stack-based language,
 which it's not!  It's a string-rewriting language, and it naturally has
 access to the deep parts of the stack, because it looks for patterns in them.
 
@@ -183,7 +173,7 @@ In fact, from this viewpoint, the language looks a lot like a deterministic
 version of [Thue][].  And Thue is Turing-complete, and the additional
 determinism isn't an impediment from the perspective of seeing what it can
 compute (a program which is written to accomodate an unspecified rewriting
-order will also work when the order is specified and fixed).
+order can be written to work the same when the order is specified and fixed).
 
 However, there's an intentional twist: every rewrite rule must contain
 exactly one `$` on the left and exactly one `$` on the right.
@@ -196,10 +186,11 @@ can compute.
 
 However,
 
-*   as I said, I haven't proved this, and actually I'm starting to doubt
-    it, as, if the set of elements that can go on the stack is finite,
-    the user can write rules similar to the ones below, even if they
-    don't have pattern matching capabilities, OK, let's rethink this.
+*   as I said, I haven't proved this, and it relies on the fact that
+    user-defined rules can't have patterns with variables and that we
+    can't simulate variables over a finite set of possible elements
+    they can match by introducing one rule for every element of that
+    finite set.
 *   we haven't restricted the redex to containing exactly one `$` and I
     haven't thought through what the implications of having more than one
     `$` in it are anyway.
@@ -226,8 +217,8 @@ To store a value on the left end of the string, what we'll do is
 "tie a weight" to it and let it "sink" to the bottom.  When we need it
 again, we'll "fish it out".
 
-    1 2 3 4 5 $ 99 sink
-    ===> 99 1 2 3 4 5 $
+    # 1 2 3 4 5 $ 99 sink
+    # ===> 99 1 2 3 4 5 $
 
 It might be illustrative to watch the trace of this.  It should be
 something like:

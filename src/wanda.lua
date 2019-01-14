@@ -83,12 +83,6 @@ function find_match(rules, redex, i)
         return {start=i, stop=i+2, pattern={x, "$", "dup"}, replacement={x, x, "$"}}
     end
 
-    if redex[i] ~= nil and redex[i+1] ~= nil and redex[i+2] == "$" and redex[i+3] == "swap" then
-        local x = redex[i]
-        local y = redex[i+1]
-        return {start=i, stop=i+3, pattern={redex[i], redex[i+1], "$", "swap"}, replacement={y, x, "$"}}
-    end
-
     if redex[i] == "$" and is_number(redex[i+1]) then
         return {start=i, stop=i+1, pattern={"$", redex[i+1]}, replacement={redex[i+1], "$"}}
     end

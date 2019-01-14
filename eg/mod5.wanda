@@ -3,4 +3,4 @@
 : 0 cont5 -> pop 0 ;
 : -1 cont5 -> 5 + ;
 
-27 mod5 30 mod5 31 mod5
+$ 27 mod5 30 mod5 31 mod5

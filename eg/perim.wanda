@@ -1,2 +1,2 @@
 : perim -> + 2 * ;
-4 10 perim
+$ 4 10 perim
