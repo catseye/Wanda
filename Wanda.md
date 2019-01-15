@@ -68,11 +68,8 @@ There are a couple of other built-in rules.
     $ 7 sgn 0 sgn -14 sgn
     ===> 1 0 -1 $
 
-    $ 5 4 gt? 5 5 gt? 5 6 gt?
-    ===> 1 0 0 $
-
-    $ 0 not 1 not 999 not
-    ===> 1 0 0 $
+    $ 7 abs 0 abs -14 abs
+    ===> 7 0 14 $
 
     5 4 $ pop
     ===> 5 $
@@ -95,8 +92,8 @@ function naming ends and the function definition begins.
 
 You can in fact think of this special form as something that gets rewritten
 into nothingness (a zero-length string) and which introduces a new rule as a
-side effect.  The new rule matches the function naming (in this case `perim`)
-and replaces it with its definition (in this case `+ 2 *`), like so:
+side effect.  The new rule matches the function naming (in this case `$ perim`)
+and replaces it with its definition (in this case `$ + 2 *`), like so:
 
     4 10 $ + 2 *
 
@@ -122,6 +119,29 @@ You can think of this as functions being redefined.
     : $ ten -> $ 11 ;
     ten
     ===> 10 11 $
+
+### Derivable operations
+
+We can define functions for some common operations seen in other Forth-like
+languages, by deriving them from the built-in operations.
+
+    $
+    : $ not -> $ sgn abs 1 - abs ;
+    0 not 1 not -1 not 999 not -999 not
+    ===> 1 0 0 0 0 $
+
+    $
+    : $ not -> $ sgn abs 1 - abs ;
+    : $ eq? -> $ - not ;
+    14 14 eq? 9 8 eq? -100 100 eq?
+    ===> 1 0 0 $
+
+    $
+    : $ not -> $ sgn abs 1 - abs ;
+    : $ eq? -> $ - not ;
+    : $ gt? -> $ - sgn 1 eq? ;
+    5 4 gt? 5 5 gt? 5 6 gt?
+    ===> 1 0 0 $
 
 Recursion
 ---------
@@ -170,15 +190,18 @@ steps makes this clear:
 So we do what any self-respecting Forth-like language would do in this
 situation: we introduce a word called `if`.
 
-    5 $ 0 gt? if 7 999
+    $ 1 if 7 999
     ===> 7 $
 
-    5 $ 6 gt? if 7 999
+    $ 0 if 7 999
     ===> 999 $
 
 We can then write `fact` as
 
     $
+    : $ not -> $ sgn abs 1 - abs ;
+    : $ eq? -> $ - not ;
+    : $ gt? -> $ - sgn 1 eq? ;
     : $ pop1 -> $ pop 1 ;
     : $ fact -> $ dup 1 - dup 0 gt? if fact pop1 * ;
     5 fact
