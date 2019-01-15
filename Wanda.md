@@ -217,53 +217,61 @@ Well, we have a stack discipline, and it's well-known that if you have
 a strict stack discipline you have a push-down automaton, not a Turing
 machine.
 
-We do have unbounded integers, so if we had division, or `swap`, we might
+If we have unbounded integers, and a division operation or `swap`, we might
 be able to make a 1-counter or 2-counter [Minsky machine][].  But we don't
-have those operations.
+have those operations, and I haven't said anything about the boundedness
+of integers yet.
 
 And anyway, that all assumes this is a traditional stack-based language,
 which it's not!  It's a string-rewriting language, and it naturally has
 access to the deep parts of the stack, because it looks for patterns in them.
 
 In fact, from this viewpoint, the language looks a lot like a deterministic
-version of [Thue][].  And Thue is Turing-complete, and the additional
-determinism isn't an impediment from the perspective of seeing what it can
-compute (a program which is written to accomodate an unspecified rewriting
-order can be written to work the same when the order is specified and fixed).
+version of [Thue][].  Every time we define a function like
 
-However, there's an intentional twist: every rewrite rule must contain
-exactly one `$` on the left and exactly one `$` on the right.
+    : $ not -> $ sgn abs 1 - abs ;
 
-If the redex (the string currently being rewritten) likewise contains
-exactly one `$`, I _think_ (but have not proved) that this limits the kinds
+it's like defining a rule in Thue like
+
+    $N::=$SA1-A
+
+And Thue is Turing-complete, and the additional determinism isn't an
+impediment from the perspective of seeing what it can compute — a program
+which is written to accomodate an unspecified rewriting order can be written
+to work the same way when the order is specified and fixed.
+
+So, if we were to leave the language as it is so far, we could conclude
+it's Turing-complete.
+
+But to make it more interesting, let's intentionally restrict our
+function definitions so that we can't map this language to Thue.
+
+Specifically, let's say every rewrite rule must contain
+exactly one `$` on the left and exactly one `$` on the right,
+and additionally, let's say the redex (the string currently being rewritten)
+likewise must contain exactly one `$`.
+
+This might seem to do the trick: you can now rewrite the string in
+only one place: around the `$`.
+
+But this isn't enough, because you can add rules that move the `$`
+around in the string.  If you want to rewrite some other part of
+the string, you just add some rules that move the `$` there first.
+
+So we'll make the restriction even stronger: in the pattern and
+in the replacement, the single `$` must always appear as the *leftmost*
+symbol.
+
+This prevents us from ever moving the `$` to the right.  (Using a
+user-defined function, that is; we'll look at the built-ins in a moment.)
+
+And so this prevents us from arbitrary rewrites like Thue.  But it
+continues to capture all the functions we've shown so far.
+
+In fact, I _think_ (but have not proved) that this limits the kinds
 of rewrites that can be undertaken in exactly the same way a strict
 stack discipline does, i.e. it can only compute what a push-down automaton
 can compute.
-
-There is a caveat here: it relies on the fact that user-defined rules
-can't have patterns with variables.  Thue's strings are defined over a
-finite alphabet, so you can simulate a pattern having variables by
-exhaustively listing all the possible symbols that could be matched,
-and having one rule for each combination.  e.g. you can say
-`1+1=2`, `1+2=3`, `1+3=4`, etc., etc.
-
-If you could do that in Wanda, you could simulate Thue by writing rules
-just like Thue's and just regarding the `$` as a nuisance that you carry
-around with you as you go.
-
-But you *can't* do that in Wanda, because Wanda has unbounded integers.
-So I dunno.
-
-Anyway, we haven't restricted the redex to containing exactly one `$` and
-I haven't fully thought through the implications of having more than one
-`$` in it, and still, I haven't got a proof for any of this.
-
-So the approach we'll take in the remainder of this document is to
-add some features and show that they make the language Turing-complete,
-even if Core Wanda already is.
-
-(And after that I might just go wild and add variables in user-defined
-rules anyway.)
 
 [Minsky machine]: https://esolangs.org/wiki/Minsky_machine
 [Thue]: https://esolangs.org/wiki/Thue
@@ -346,6 +354,33 @@ The following example is of course no proof of that, but it's illustrative:
     ===> 4000000000000004000000000000001 $
 
 This fact will become important later on.
+
+- - - -
+
+There is a caveat here: it relies on the fact that user-defined rules
+can't have patterns with variables.  Thue's strings are defined over a
+finite alphabet, so you can simulate a pattern having variables by
+exhaustively listing all the possible symbols that could be matched,
+and having one rule for each combination.  e.g. you can say
+`1+1=2`, `1+2=3`, `1+3=4`, etc., etc.
+
+If you could do that in Wanda, you could simulate Thue by writing rules
+just like Thue's and just regarding the `$` as a nuisance that you carry
+around with you as you go.
+
+But you *can't* do that in Wanda, because Wanda has unbounded integers.
+So I dunno.
+
+Anyway, we haven't restricted the redex to containing exactly one `$` and
+I haven't fully thought through the implications of having more than one
+`$` in it, and still, I haven't got a proof for any of this.
+
+So the approach we'll take in the remainder of this document is to
+add some features and show that they make the language Turing-complete,
+even if Core Wanda already is.
+
+(And after that I might just go wild and add variables in user-defined
+rules anyway.)
 
 - - - -
 
