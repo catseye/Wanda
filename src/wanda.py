@@ -24,6 +24,7 @@ def find_match(rules, redex, i):
     r1 = redex[i+1] if i+1 < len(redex) else None
     r2 = redex[i+2] if i+2 < len(redex) else None
     r3 = redex[i+3] if i+3 < len(redex) else None
+    r4 = redex[i+4] if i+4 < len(redex) else None
 
     if r0 == "$" and r1 == ":":
         j = i + 2
@@ -62,17 +63,28 @@ def find_match(rules, redex, i):
             return dict(start=i, stop=i+3, pattern=[r0, r1, "$", "*"], replacement=[str(a * b), "$"])
         if op == "-":
             return dict(start=i, stop=i+3, pattern=[r0, r1, "$", "-"], replacement=[str(a - b), "$"])
+        if op == "gt?":
+            return dict(start=i, stop=i+3, pattern=[r0, r1, "$", "gt?"], replacement=[str(1 if a > b else 0), "$"])
 
-    if is_number(r0) and r1 == "$" and r2 == "sgn":
+    if is_number(r0) and r1 == "$":
         a = int(r0)
-        sgn_a = "1" if a > 0 else ("-1" if a < 0 else "0")
-        return dict(start=i, stop=i+2, pattern=[r0, "$", "sgn"], replacement=[sgn_a, "$"])
+        op = r2
+        if op == "not":
+            return dict(start=i, stop=i+2, pattern=[r0, "$", "not"], replacement=[str(1 if r0 == "0" else 0), "$"])
+        if op == "sgn":
+            sgn_a = "1" if a > 0 else ("-1" if a < 0 else "0")
+            return dict(start=i, stop=i+2, pattern=[r0, "$", "sgn"], replacement=[sgn_a, "$"])
+        if op == "if" and r3 and r4:
+            return dict(start=i, stop=i+4, pattern=[r0, "$", "if", r3, r4], replacement=["$", r4 if r0 == "0" else r3])
 
     if r0 and r1 == "$" and r2 == "pop":
         return dict(start=i, stop=i+2, pattern=[r0, "$", "pop"], replacement=["$"])
 
     if r0 and r1 == "$" and r2 == "dup":
         return dict(start=i, stop=i+2, pattern=[r0, "$", "dup"], replacement=[r0, r0, "$"])
+
+    if r0 and r1 == "$" and r2 and r3 == "sink":
+        return dict(start=i, stop=i+3, pattern=[r0, "$", r2, "sink"], replacement=["$", r2, "sink", r0])
 
     if r0 == "$" and is_number(r1):
         return dict(start=i, stop=i+1, pattern=["$", r1], replacement=[r1, "$"])

@@ -1,8 +1,8 @@
 Wanda
 =====
 
-Wanda is a Forth-like language.  However, despite being Forth-like, it seems
-unfair to call it "concatenative", or even "stack-based", because it is based
+Wanda is a Forth-like language.  Despite being Forth-like, it seems unfair
+to call it "concatenative", or even "stack-based", because it is based
 on a string-rewriting semantics.
 
 The remainder of this document will describe the language and will attempt
@@ -68,19 +68,17 @@ There are a couple of other built-in rules.
     $ 7 sgn 0 sgn -14 sgn
     ===> 1 0 -1 $
 
+    $ 5 4 gt? 5 5 gt? 5 6 gt?
+    ===> 1 0 0 $
+
+    $ 0 not 1 not 999 not
+    ===> 1 0 0 $
+
     5 4 $ pop
     ===> 5 $
 
     4 $ dup
     ===> 4 4 $
-
-The numbers that the arithmetic operations work on, are unbounded integers.
-The following example is of course no proof of that, but it's illustrative:
-
-    $ 1000000000000000 1000000000000001 + dup *
-    ===> 4000000000000004000000000000001 $
-
-This fact will become important later on.
 
 Defining functions
 ------------------
@@ -124,40 +122,6 @@ You can think of this as functions being redefined.
     : $ ten -> $ 11 ;
     ten
     ===> 10 11 $
-
-Note there is another restriction: exactly one `$` symbol must occur to
-the left of the `->`, and exactly one `$` symbol must occur to the right
-of the `->` as well.  If this is not the case, the implementation may
-flag up some kind of warning, but at any rate, it will erase the special
-form, but it not introduce any new rules.
-
-    $
-    : $ ten -> 10 ;
-    ten
-    ===> $ ten
-
-    $
-    : ten -> $ 10 ;
-    ten
-    ===> $ ten
-
-    $
-    : ten -> 10 ;
-    ten
-    ===> $ ten
-
-    $
-    : $ $ ten -> $ 10 ;
-    ten
-    ===> $ ten
-
-    $
-    : $ ten -> $ $ 10 ;
-    ten
-    ===> $ ten
-
-Often the `$` will appear in the leftmost position in both the pattern
-and the replacement, as in the above examples, but this is not required.
 
 Recursion
 ---------
@@ -203,42 +167,28 @@ steps makes this clear:
 
     -> Tests for functionality "Run Wanda program"
 
-What would be great would be some way for `0 fact` to be immediately rewritten
-into `1` instead of recursing.
+So we do what any self-respecting Forth-like language would do in this
+situation: we introduce a word called `if`.
 
-Well, this is what the extra `->` is for in a `:` ... `;` block — so that we
-can specify both the pattern and the replacement.  So, if we say
+    5 $ 0 gt? if 7 999
+    ===> 7 $
 
-    : 0 $ fact -> $ 1 ;
+    5 $ 6 gt? if 7 999
+    ===> 999 $
 
-we have defined a rule which matches `0 $ fact` and replaces it with `$ 1`
-(which will immediatey rewrite to `1 $`).  Thus the recursion can terminate:
-
-    $
-    : 0 $ fact -> $ 1 ;
-    : $ fact -> $ dup 1 - fact * ;
-    5 fact
-    ===> 120 $
-
-At first blush it may seem like the order of rule application matters in
-the above, but in fact it does not:
+We can then write `fact` as
 
     $
-    : $ fact -> $ dup 1 - fact * ;
-    : 0 $ fact -> $ 1 ;
+    : $ pop1 -> $ pop 1 ;
+    : $ fact -> $ dup 1 - dup 0 gt? if fact pop1 * ;
     5 fact
     ===> 120 $
-
-This is because the string is searched left-to-right for the first match,
-and if the string contains `0 fact`, this will always match `0 fact` before
-we're even in a position to check the parts of the string to the right of
-the `0` for the pattern `fact`.
 
 Computational class
 -------------------
 
-We can ask ourselves: if we stop here (and perhaps call what we've got so
-far **Core Wanda**), what kinds of things can we compute with it?
+We can ask ourselves: if we stop here, what kinds of things can we compute
+with what we have so far?
 
 Well, we have a stack discipline, and it's well-known that if you have
 a strict stack discipline you have a push-down automaton, not a Turing
@@ -295,6 +245,87 @@ rules anyway.)
 [Minsky machine]: https://esolangs.org/wiki/Minsky_machine
 [Thue]: https://esolangs.org/wiki/Thue
 
+- - - -
+
+Note there is another restriction: exactly one `$` symbol must occur to
+the left of the `->`, and exactly one `$` symbol must occur to the right
+of the `->` as well.  If this is not the case, the implementation may
+flag up some kind of warning, but at any rate, it will erase the special
+form, but it not introduce any new rules.
+
+    $
+    : $ ten -> 10 ;
+    ten
+    ===> $ ten
+
+    $
+    : ten -> $ 10 ;
+    ten
+    ===> $ ten
+
+    $
+    : ten -> 10 ;
+    ten
+    ===> $ ten
+
+    $
+    : $ $ ten -> $ 10 ;
+    ten
+    ===> $ ten
+
+    $
+    : $ ten -> $ $ 10 ;
+    ten
+    ===> $ ten
+
+Often the `$` will appear in the leftmost position in both the pattern
+and the replacement, as in the above examples, but this is not required.
+
+- - - -
+
+What would be great would be some way for `0 fact` to be immediately rewritten
+into `1` instead of recursing.
+
+Well, this is what the extra `->` is for in a `:` ... `;` block — so that we
+can specify both the pattern and the replacement.  So, if we say
+
+    : 0 $ fact -> $ 1 ;
+
+we have defined a rule which matches `0 $ fact` and replaces it with `$ 1`
+(which will immediatey rewrite to `1 $`).  Thus the recursion can terminate:
+
+    $
+    : 0 $ fact -> $ 1 ;
+    : $ fact -> $ dup 1 - fact * ;
+    5 fact
+    ===> 120 $
+
+At first blush it may seem like the order of rule application matters in
+the above, but in fact it does not:
+
+    $
+    : $ fact -> $ dup 1 - fact * ;
+    : 0 $ fact -> $ 1 ;
+    5 fact
+    ===> 120 $
+
+This is because the string is searched left-to-right for the first match,
+and if the string contains `0 fact`, this will always match `0 fact` before
+we're even in a position to check the parts of the string to the right of
+the `0` for the pattern `fact`.
+
+- - - -
+
+The numbers that the arithmetic operations work on, are unbounded integers.
+The following example is of course no proof of that, but it's illustrative:
+
+    $ 1000000000000000 1000000000000001 + dup *
+    ===> 4000000000000004000000000000001 $
+
+This fact will become important later on.
+
+- - - -
+
 Concrete Shoes and Fishing Lines
 --------------------------------
 
@@ -315,19 +346,27 @@ It might be illustrative to show the trace of this.
     -> Tests for functionality "Trace Wanda program"
 
     1 2 3 4 5 $ 99 sink
-    ===> 1 2 3 4 5 $ 99 sink
-    ===> 1 2 3 4 $ 99 sinking 5
-    ===> 1 2 3 $ 99 sinking 4 5
-    ===> 1 2 $ 99 sinking 3 4 5
-    ===> 1 $ 99 sinking 2 3 4 5
-    ===> $ 99 sinking 1 2 3 4 5
-    ===> 99 $ bubble 1 2 3 4 5
-    ===> 99 1 $ bubble 2 3 4 5
-    ===> 99 1 2 $ bubble 3 4 5
-    ===> 99 1 2 3 $ bubble 4 5
-    ===> 99 1 2 3 4 $ bubble 5
-    ===> 99 1 2 3 4 5 $ bubble
-    ===> 99 1 2 3 4 5 $
+    ===> 1 2 3 4 $ 99 sink 5
+    ===> 1 2 3 $ 99 sink 4 5
+    ===> 1 2 $ 99 sink 3 4 5
+    ===> 1 $ 99 sink 2 3 4 5
+    ===> $ 99 sink 1 2 3 4 5
+    ===> 99 $ sink 1 2 3 4 5
+    ===> 99 $ sink 1 2 3 4 5
+
+    # ===> 1 2 3 4 5 $ 99 sink
+    # ===> 1 2 3 4 $ 99 sinking 5
+    # ===> 1 2 3 $ 99 sinking 4 5
+    # ===> 1 2 $ 99 sinking 3 4 5
+    # ===> 1 $ 99 sinking 2 3 4 5
+    # ===> $ 99 sinking 1 2 3 4 5
+    # ===> 99 $ bubble 1 2 3 4 5
+    # ===> 99 1 $ bubble 2 3 4 5
+    # ===> 99 1 2 $ bubble 3 4 5
+    # ===> 99 1 2 3 $ bubble 4 5
+    # ===> 99 1 2 3 4 $ bubble 5
+    # ===> 99 1 2 3 4 5 $ bubble
+    # ===> 99 1 2 3 4 5 $
 
 History
 -------
