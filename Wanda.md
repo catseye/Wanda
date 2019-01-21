@@ -282,11 +282,11 @@ But this isn't enough, because you can add rules that move the `$`
 around in the string.  If you want to rewrite some other part of
 the string, you just add some rules that move the `$` there first.
 
-So we'll make the restriction even stronger: in the pattern and
-in the replacement, the single `$` must always appear as the *leftmost*
-symbol.
+So we'll make the restriction even stronger: in the replacement
+(but not necessarily the pattern), the single `$` must always appear
+as the *leftmost* symbol.
 
-Concretely, if you actually try this, the implementation may
+Concretely, if you actually deviate from this, the implementation may
 flag up some kind of warning, but at any rate, it will erase the special
 form, but it not introduce any new rules.
 
@@ -314,6 +314,16 @@ form, but it not introduce any new rules.
     : $ ten -> $ $ 10 ;
     ten
     ===> $ ten
+
+    $
+    : $ ten -> dix $ ;
+    ten
+    ===> $ ten
+
+    $
+    : 10 $ ten -> $ dix ;
+    10 ten
+    ===> $ dix
 
 Anyway, the point is, this prevents us from ever writing a rule that moves
 the `$` to the right.  And so this prevents us from arbitrary rewrites like
