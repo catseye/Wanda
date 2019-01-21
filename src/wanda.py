@@ -70,8 +70,6 @@ def find_match(rules, redex, i):
         if op == "sgn":
             sgn_a = "1" if a > 0 else ("-1" if a < 0 else "0")
             return dict(start=i, stop=i+2, pattern=[r0, "$", "sgn"], replacement=[sgn_a, "$"])
-        if op == "if" and r3 and r4:
-            return dict(start=i, stop=i+4, pattern=[r0, "$", "if", r3, r4], replacement=["$", r4 if r0 == "0" else r3])
 
     if r0 and r1 == "$" and r2 == "pop":
         return dict(start=i, stop=i+2, pattern=[r0, "$", "pop"], replacement=["$"])

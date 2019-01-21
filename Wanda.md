@@ -122,7 +122,6 @@ You can think of this as functions being redefined.
 We can define functions for some common operations seen in other Forth-like
 languages, by deriving them from the built-in operations.
 
-
     $
     : $ abs -> $ dup sgn * ;
     7 abs 0 abs -14 abs
@@ -193,26 +192,36 @@ steps makes this clear:
 
     -> Tests for functionality "Run Wanda program"
 
-So we do what any self-respecting Forth-like language would do in this
-situation: we introduce a word called `if`.
+What would be great would be some way for `0 fact` to be immediately rewritten
+into `1` instead of recursing.
 
-    $ 1 if 7 999
-    ===> 7 $
+Well, this is what the extra `->` is for in a `:` ... `;` block — so that we
+can specify both the pattern and the replacement.  So, if we say
 
-    $ 0 if 7 999
-    ===> 999 $
+    : 0 $ fact -> $ 1 ;
 
-We can then write `fact` as
+we have defined a rule which matches `0 $ fact` and replaces it with `$ 1`
+(which will immediatey rewrite to `1 $`).  Thus the recursion can terminate:
 
     $
-    : $ abs -> $ dup sgn * ;
-    : $ not -> $ sgn abs 1 - abs ;
-    : $ eq? -> $ - not ;
-    : $ gt? -> $ - sgn 1 eq? ;
-    : $ pop1 -> $ pop 1 ;
-    : $ fact -> $ dup 1 - dup 0 gt? if fact pop1 * ;
+    : 0 $ fact -> $ 1 ;
+    : $ fact -> $ dup 1 - fact * ;
     5 fact
     ===> 120 $
+
+At first blush it may seem like the order of rule application matters in
+the above, but in fact it does not:
+
+    $
+    : $ fact -> $ dup 1 - fact * ;
+    : 0 $ fact -> $ 1 ;
+    5 fact
+    ===> 120 $
+
+This is because the string is searched left-to-right for the first match,
+and if the string contains `0 fact`, this will always match `0 fact` before
+we're even in a position to check the parts of the string to the right of
+the `0` for the pattern `fact`.
 
 Computational class
 -------------------
@@ -250,13 +259,21 @@ to work the same way when the order is specified and fixed.
 So, if we were to leave the language as it is so far, we could conclude
 it's Turing-complete.
 
-But to make it more interesting, let's intentionally restrict our
-function definitions so that we can't map this language to Thue.
+Which is great.  But also somewhat unsatisfying.  I'd like for Wanda
+to be more than just a Thue-in-Forth's-clothing.
 
-Specifically, let's say every rewrite rule must contain
-exactly one `$` on the left and exactly one `$` on the right,
-and additionally, let's say the redex (the string currently being rewritten)
-likewise must contain exactly one `$`.
+We could say we have unbounded integers, but I don't think that helps
+(at least not without some other deep twist(s) that I don't see offhand)
+because you can just embed a finite alphabet a la Thue in your unbounded
+alphabet of integers.
+
+So to make it more interesting, let's intentionally restrict our
+function definitions so that we can't easily map this language to Thue.
+
+Specifically, let's say every rewrite rule must contain exactly one `$`
+on the left and exactly one `$` on the right, and additionally, let's say
+the redex (the string currently being rewritten) likewise must contain
+exactly one `$`.
 
 This might seem to do the trick: you can now rewrite the string in
 only one place: around the `$`.
@@ -269,25 +286,7 @@ So we'll make the restriction even stronger: in the pattern and
 in the replacement, the single `$` must always appear as the *leftmost*
 symbol.
 
-This prevents us from ever moving the `$` to the right.  (Using a
-user-defined function, that is; we'll look at the built-ins in a moment.)
-
-And so this prevents us from arbitrary rewrites like Thue.  But it
-continues to capture all the functions we've shown so far.
-
-In fact, I _think_ (but have not proved) that this limits the kinds
-of rewrites that can be undertaken in exactly the same way a strict
-stack discipline does, i.e. it can only compute what a push-down automaton
-can compute.
-
-[Minsky machine]: https://esolangs.org/wiki/Minsky_machine
-[Thue]: https://esolangs.org/wiki/Thue
-
-- - - -
-
-Note there is another restriction: exactly one `$` symbol must occur to
-the left of the `->`, and exactly one `$` symbol must occur to the right
-of the `->` as well.  If this is not the case, the implementation may
+Concretely, if you actually try this, the implementation may
 flag up some kind of warning, but at any rate, it will erase the special
 form, but it not introduce any new rules.
 
@@ -316,80 +315,19 @@ form, but it not introduce any new rules.
     ten
     ===> $ ten
 
-Often the `$` will appear in the leftmost position in both the pattern
-and the replacement, as in the above examples, but this is not required.
+Anyway, the point is, this prevents us from ever writing a rule that moves
+the `$` to the right.  And so this prevents us from arbitrary rewrites like
+Thue.  But it continues to capture all the functions we've shown so far.
 
-- - - -
+In fact, I _think_ (but have not proved) that this limits the kinds
+of rewrites that can be undertaken in exactly the same way a strict
+stack discipline does, i.e. it can only compute what a push-down automaton
+can compute.
 
-What would be great would be some way for `0 fact` to be immediately rewritten
-into `1` instead of recursing.
-
-Well, this is what the extra `->` is for in a `:` ... `;` block — so that we
-can specify both the pattern and the replacement.  So, if we say
-
-    : 0 $ fact -> $ 1 ;
-
-we have defined a rule which matches `0 $ fact` and replaces it with `$ 1`
-(which will immediatey rewrite to `1 $`).  Thus the recursion can terminate:
-
-    $
-    : 0 $ fact -> $ 1 ;
-    : $ fact -> $ dup 1 - fact * ;
-    5 fact
-    ===> 120 $
-
-At first blush it may seem like the order of rule application matters in
-the above, but in fact it does not:
-
-    $
-    : $ fact -> $ dup 1 - fact * ;
-    : 0 $ fact -> $ 1 ;
-    5 fact
-    ===> 120 $
-
-This is because the string is searched left-to-right for the first match,
-and if the string contains `0 fact`, this will always match `0 fact` before
-we're even in a position to check the parts of the string to the right of
-the `0` for the pattern `fact`.
-
-- - - -
-
-The numbers that the arithmetic operations work on, are unbounded integers.
-The following example is of course no proof of that, but it's illustrative:
-
-    $ 1000000000000000 1000000000000001 + dup *
-    ===> 4000000000000004000000000000001 $
-
-This fact will become important later on.
-
-- - - -
-
-There is a caveat here: it relies on the fact that user-defined rules
-can't have patterns with variables.  Thue's strings are defined over a
-finite alphabet, so you can simulate a pattern having variables by
-exhaustively listing all the possible symbols that could be matched,
-and having one rule for each combination.  e.g. you can say
-`1+1=2`, `1+2=3`, `1+3=4`, etc., etc.
-
-If you could do that in Wanda, you could simulate Thue by writing rules
-just like Thue's and just regarding the `$` as a nuisance that you carry
-around with you as you go.
-
-But you *can't* do that in Wanda, because Wanda has unbounded integers.
-So I dunno.
-
-Anyway, we haven't restricted the redex to containing exactly one `$` and
-I haven't fully thought through the implications of having more than one
-`$` in it, and still, I haven't got a proof for any of this.
-
-So the approach we'll take in the remainder of this document is to
-add some features and show that they make the language Turing-complete,
-even if Core Wanda already is.
-
-(And after that I might just go wild and add variables in user-defined
-rules anyway.)
-
-- - - -
+Ah, but what about the built-in functions?  Well, I think the ones
+we've introduced so far don't change the situation.  I would have to
+spell out why I think that is the case though.  I might get to that
+at some point.
 
 Concrete Shoes and Fishing Lines
 --------------------------------
@@ -448,8 +386,6 @@ point; however, I think that was later — I don't think I had even heard of
 "concatenative" at that time — and besides, Enchilada is not all that
 similar.)
 
-[Enchilada]: http://www.enchiladacode.nl/
-
 Further Work
 ------------
 
@@ -461,61 +397,8 @@ rules that are not written statically in the initial program.  And
 possibly retracting existing rules too, but this seems less exciting.
 But I haven't worked out a way to do this yet that I like.
 
-Appendix A.  Direct Comparison with Stack-Based and Concatenative Languages
----------------------------------------------------------------------------
+- - - -
 
-Consider the expression:
-
-    2 3 + 4 *
-
-In a "stack language" like Forth, this would be interpreted as
-
-    push 2
-    push 3
-    pop off top two stack elements, add them, push result on stack
-    push 4
-    pop off top two stack elements, multiply them, push result on stack
-
-In a "concatenative" language, it would be interpreted (using a
-Javascript-like language solely to illustrate it explicitly) as
-
-    function(stack) {
-        return mul(push(4, add(push(3, push(2, stack)))));
-    }
-
-In both of these, the result of running it on an empty stack would
-be a stack containing one element, the integer 20.
-
-The analagous expression in Wanda would be
-
-    $ 2 3 + 4 *
-
-And the result would be analogous to the "stack language" and
-"concatenative" results
-
-    20 $
-
-It would be arrived at as follows.
-
-    TODO spell it out here
-
-Appendix B.  Pseudo-code for interpretation
--------------------------------------------
-
-    rules = (initialized with built-in rules)
-    split program string by spaces into an array called "redex"
-    start-index = 0
-    while start-index < len(redex):
-        rest-of-redex = redex[start-index ... end]
-        match-info = find first rule in rules that matches rest-of-redex
-        if match-info is None:
-            start-index += 1
-            continue
-        redex = match-info.rule.replace(redex)
-        start-index = 0
-     return redex
-
-For this, we need a definition of `match` and we need each rule to define a
-method `replace`.  For user-defined rules, this has a simple subtitution
-action, but built-in rules such as `: ... ;` have side effects such as
-updating `rules`.
+[Enchilada]: http://www.enchiladacode.nl/
+[Minsky machine]: https://esolangs.org/wiki/Minsky_machine
+[Thue]: https://esolangs.org/wiki/Thue
