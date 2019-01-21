@@ -67,9 +67,6 @@ def find_match(rules, redex, i):
     if is_number(r0) and r1 == "$":
         a = int(r0)
         op = r2
-        if op == "abs":
-            abs_a = str(a) if a >= 0 else str(-1 * a)
-            return dict(start=i, stop=i+2, pattern=[r0, "$", "abs"], replacement=[abs_a, "$"])
         if op == "sgn":
             sgn_a = "1" if a > 0 else ("-1" if a < 0 else "0")
             return dict(start=i, stop=i+2, pattern=[r0, "$", "sgn"], replacement=[sgn_a, "$"])

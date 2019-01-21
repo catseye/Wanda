@@ -68,9 +68,6 @@ There are a couple of other built-in functions (or rules).
     $ 7 sgn 0 sgn -14 sgn
     ===> 1 0 -1 $
 
-    $ 7 abs 0 abs -14 abs
-    ===> 7 0 14 $
-
     5 4 $ pop
     ===> 5 $
 
@@ -125,18 +122,27 @@ You can think of this as functions being redefined.
 We can define functions for some common operations seen in other Forth-like
 languages, by deriving them from the built-in operations.
 
+
     $
+    : $ abs -> $ dup sgn * ;
+    7 abs 0 abs -14 abs
+    ===> 7 0 14 $
+
+    $
+    : $ abs -> $ dup sgn * ;
     : $ not -> $ sgn abs 1 - abs ;
     0 not 1 not -1 not 999 not -999 not
     ===> 1 0 0 0 0 $
 
     $
+    : $ abs -> $ dup sgn * ;
     : $ not -> $ sgn abs 1 - abs ;
     : $ eq? -> $ - not ;
     14 14 eq? 9 8 eq? -100 100 eq?
     ===> 1 0 0 $
 
     $
+    : $ abs -> $ dup sgn * ;
     : $ not -> $ sgn abs 1 - abs ;
     : $ eq? -> $ - not ;
     : $ gt? -> $ - sgn 1 eq? ;
@@ -199,6 +205,7 @@ situation: we introduce a word called `if`.
 We can then write `fact` as
 
     $
+    : $ abs -> $ dup sgn * ;
     : $ not -> $ sgn abs 1 - abs ;
     : $ eq? -> $ - not ;
     : $ gt? -> $ - sgn 1 eq? ;
