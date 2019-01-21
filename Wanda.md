@@ -1,9 +1,9 @@
 Wanda
 =====
 
-Wanda is a Forth-like language.  Despite being Forth-like, it seems unfair
-to call it "concatenative", or even "stack-based", because it is based
-on a string-rewriting semantics.
+Wanda is a "concatenative" language that's not actually "concatenative"
+at all, nor even "stack-based", because it's based on a string-rewriting
+semantics.
 
 The remainder of this document will describe the language and will attempt
 to justify the above statement.
@@ -43,12 +43,6 @@ pattern `X Y $ +`, where X and Y are integers; the part of the string that
 matches that pattern is replaced by a single integer which is the sum of
 X and Y, followed by a `$`.
 
-If no patterns match anywhere in the string, the expression remains unchanged
-and evaluation terminates.
-
-    2 $ +
-    ===> 2 $ +
-
 You can think of `$` as a symbol which delineates the stack (on the left)
 from the program (on the right).  When constants are encountered in the
 program, they are pushed onto the stack.
@@ -60,10 +54,16 @@ all just a string that gets rewritten.  `2` is neither an element on the
 stack, nor an instruction that pushes the value 2 onto the stack; it's just
 a `2`.
 
+Indeed, observe that, if no patterns match anywhere in the string, the
+expression remains unchanged and evaluation terminates:
+
+    2 $ +
+    ===> 2 $ +
+
 ### Some other builtins
 
-We've seen `+` and `*`, which are built-in rules.
-There are a couple of other built-in rules.
+We've seen `+` and `*`, which are built-in functions (or rules).
+There are a couple of other built-in functions (or rules).
 
     $ 7 sgn 0 sgn -14 sgn
     ===> 1 0 -1 $
