@@ -42,7 +42,9 @@ def find_match(rules, redex, i):
            j += 1
 
         newrule = None
-        if len([s for s in pattern if s == "$"]) == 1 and len([s for s in replacement if s == "$"]) == 1:
+        if len([s for s in pattern if s == "$"]) == 1 and \
+           len([s for s in replacement if s == "$"]) == 1 and \
+           replacement[0] == "$":
             newrule=dict(pattern=pattern, replacement=replacement)
 
         return dict(
