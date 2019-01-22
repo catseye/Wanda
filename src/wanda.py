@@ -79,6 +79,9 @@ def find_match(rules, redex, i):
     if r0 and r1 == "$" and r2 == "dup":
         return dict(start=i, stop=i+2, pattern=[r0, "$", "dup"], replacement=[r0, r0, "$"])
 
+    if r0 == ")" and r1 == "$" and r2 and r3 == "sink":
+        return dict(start=i, stop=i+3, pattern=[")", "$", r2, "sink"], replacement=[")", "$", r2])
+
     if r0 and r1 == "$" and r2 and r3 == "sink":
         return dict(start=i, stop=i+3, pattern=[r0, "$", r2, "sink"], replacement=["$", r2, "sink", r0])
 

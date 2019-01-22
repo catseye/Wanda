@@ -362,35 +362,31 @@ In fact, since we're imagining part of this string is a "stack" anyway,
 we might as well go further and imagine it's a body of water.
 
 To store a value on the left end of the string, what we'll do is
-"tie a weight" to it and let it "sink" to the bottom.  When we need it
-again, we'll "fish it out".
+"tie a weight" to it and let it "sink" to the bottom.
+
+We should make "the bottom" explicit, as well.  It will be the `)` symbol.
 
 It might be illustrative to show the trace of this.
 
     -> Tests for functionality "Trace Wanda program"
 
-    1 2 3 4 5 $ 99 sink
-    ===> 1 2 3 4 $ 99 sink 5
-    ===> 1 2 3 $ 99 sink 4 5
-    ===> 1 2 $ 99 sink 3 4 5
-    ===> 1 $ 99 sink 2 3 4 5
-    ===> $ 99 sink 1 2 3 4 5
-    ===> 99 $ sink 1 2 3 4 5
-    ===> 99 $ sink 1 2 3 4 5
+    ) 1 2 3 4 5 $ 99 sink
+    ===> ) 1 2 3 4 $ 99 sink 5
+    ===> ) 1 2 3 $ 99 sink 4 5
+    ===> ) 1 2 $ 99 sink 3 4 5
+    ===> ) 1 $ 99 sink 2 3 4 5
+    ===> ) $ 99 sink 1 2 3 4 5
+    ===> ) $ 99 1 2 3 4 5
+    ===> ) 99 $ 1 2 3 4 5
+    ===> ) 99 1 $ 2 3 4 5
+    ===> ) 99 1 2 $ 3 4 5
+    ===> ) 99 1 2 3 $ 4 5
+    ===> ) 99 1 2 3 4 $ 5
+    ===> ) 99 1 2 3 4 5 $
+    ===> ) 99 1 2 3 4 5 $
 
-    # ===> 1 2 3 4 5 $ 99 sink
-    # ===> 1 2 3 4 $ 99 sinking 5
-    # ===> 1 2 3 $ 99 sinking 4 5
-    # ===> 1 2 $ 99 sinking 3 4 5
-    # ===> 1 $ 99 sinking 2 3 4 5
-    # ===> $ 99 sinking 1 2 3 4 5
-    # ===> 99 $ bubble 1 2 3 4 5
-    # ===> 99 1 $ bubble 2 3 4 5
-    # ===> 99 1 2 $ bubble 3 4 5
-    # ===> 99 1 2 3 $ bubble 4 5
-    # ===> 99 1 2 3 4 $ bubble 5
-    # ===> 99 1 2 3 4 5 $ bubble
-    # ===> 99 1 2 3 4 5 $
+Note that after the value has "sunk", the `$` will "bubble up" all
+by itself, assuming the values on the stack are integers.
 
 History
 -------
