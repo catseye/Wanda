@@ -1,9 +1,9 @@
 Wanda
 =====
 
-Wanda is a "concatenative" language that's not actually "concatenative"
-at all, nor even "stack-based", because it's based on a string-rewriting
-semantics.
+Wanda is a Forth-like "concatenative" language that's probably not actually 
+"concatenative" at all, nor even "stack-based", because it's based on a
+string-rewriting semantics.
 
 The remainder of this document will describe the language and will attempt
 to justify the above statement.
@@ -48,8 +48,8 @@ from the program (on the right).  When constants are encountered in the
 program, they are pushed onto the stack.
 
 But if you do think of it this way, keep in mind that it is only a
-convenient illusion.  For despite mostly looking like and evaluating like a
-Forth program, there is no "stack" that is distinct from the program — it's
+convenient illusion.  For despite looking like and evaluating like a Forth
+program, there is no "stack" that is distinct from the program — it's
 all just a string that gets rewritten.  `2` is neither an element on the
 stack, nor an instruction that pushes the value 2 onto the stack; it's just
 a `2`.
@@ -229,9 +229,9 @@ Computational class
 We can ask ourselves: if we stop here, what kinds of things can we compute
 with what we have so far?
 
-Well, we have a stack discipline, and it's well-known that if you have
-a strict stack discipline you have a push-down automaton, not a Turing
-machine.
+Well, we have a first-in-first-out stack discipline, and it's well-known
+that if you have a strict stack discipline you have a push-down automaton,
+not a Turing machine.
 
 If we have unbounded integers, and a division operation or `swap`, we might
 be able to make a 1-counter or 2-counter [Minsky machine][].  But we don't
@@ -257,18 +257,18 @@ which is written to accomodate an unspecified rewriting order can be written
 to work the same way when the order is specified and fixed.
 
 So, if we were to leave the language as it is so far, we could conclude
-it's Turing-complete.
+it's Turing-complete.  Which is great, but also somewhat unsatisfying.
+I'd like for Wanda to be more than just a Thue-in-Forth's-clothing.
 
-Which is great.  But also somewhat unsatisfying.  I'd like for Wanda
-to be more than just a Thue-in-Forth's-clothing.
+So to make it more interesting, let's intentionally restrict the
+language so that we can't easily map programs to Thue programs.
 
 We could say we have unbounded integers, but I don't think that helps
-(at least not without some other deep twist(s) that I don't see offhand)
+(at least not without some other twist(s) that I don't see offhand)
 because you can just embed a finite alphabet a la Thue in your unbounded
 alphabet of integers.
 
-So to make it more interesting, let's intentionally restrict our
-function definitions so that we can't easily map this language to Thue.
+But what if we place restrictions on the function definitions.
 
 Specifically, let's say every rewrite rule must contain exactly one `$`
 on the left and exactly one `$` on the right, and additionally, let's say
@@ -276,17 +276,9 @@ the redex (the string currently being rewritten) likewise must contain
 exactly one `$`.
 
 This might seem to do the trick: you can now rewrite the string in
-only one place: around the `$`.
+only one place: around the `$`.  That's a pretty big impediment.
 
-But this isn't enough, because you can add rules that move the `$`
-around in the string.  If you want to rewrite some other part of
-the string, you just add some rules that move the `$` there first.
-
-So we'll make the restriction even stronger: in the replacement
-(but not necessarily the pattern), the single `$` must always appear
-as the *leftmost* symbol.
-
-Concretely, if you actually deviate from this, the implementation may
+Concretely, if you actually violate this rule, the implementation may
 flag up some kind of warning, but at any rate, it will erase the special
 form, but it not introduce any new rules.
 
@@ -315,6 +307,14 @@ form, but it not introduce any new rules.
     ten
     ===> $ ten
 
+But this isn't enough, because you can add rules that move the `$`
+around in the string.  If you want to rewrite some other part of
+the string, you just add some rules that move the `$` there first.
+
+So we'll make the restriction even stronger: on the right-hand side
+(but not necessarily the left-hand side), the single `$` must always
+appear as the *leftmost* symbol.
+
     $
     : $ ten -> dix $ ;
     ten
@@ -326,21 +326,32 @@ form, but it not introduce any new rules.
     ===> $ dix
 
 Anyway, the point is, this prevents us from ever writing a rule that moves
-the `$` to the right.  And so this prevents us from arbitrary rewrites like
-Thue.  But it continues to capture all the functions we've shown so far.
+the `$` to the right.  And so this prevents us from arbitrarily moving the
+`$` around, which prevents us from being able to rewrite arbitrary parts
+of the string (which would make it Turing-complete like Thue).  But it
+continues to capture all the functions we've shown so far.
+
+But what of the built-in functions?  It's true that they allow us to
+move some information in the redex from the right of the `$` to the left.
+`$ 10`, for example, rewrites to `10 $`.  But each of these can only move
+a bounded amount of information, and this (I think) still prevents us from
+getting to arbitrary parts of the string and rewriting them.
 
 In fact, I _think_ (but have not proved) that this limits the kinds
 of rewrites that can be undertaken in exactly the same way a strict
 stack discipline does, i.e. it can only compute what a push-down automaton
 can compute.
 
-Ah, but what about the built-in functions?  Well, I think the ones
-we've introduced so far don't change the situation.  I would have to
-spell out why I think that is the case though.  I might get to that
-at some point.
+But I have no proof of that.  It may turn out, in fact, that even with
+these restrictions, the language is Turing-complete, due to something
+I've missed.
 
-Concrete Shoes and Fishing Lines
---------------------------------
+So, I'll describe the feature added in the next section like this:
+it makes Wanda Turing-complete, even if the language we've described so
+far already is.
+
+Concrete Shoes
+--------------
 
 Let's introduce some built-in rules that allow us to manipulate values
 at the left end of the string, i.e. deep in the "stack".  This should
