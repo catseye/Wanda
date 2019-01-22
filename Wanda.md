@@ -17,6 +17,9 @@ Basics
     -> Functionality "Trace Wanda program" is implemented by
     -> shell command "python src/wanda.py --trace %(test-body-file) | head -n 15"
 
+    -> Functionality "Run Wanda program" is implemented by
+    -> shell command "lua src/wanda.lua %(test-body-file)"
+
     -> Tests for functionality "Run Wanda program"
 
 A Wanda program is a string of symbols.  Each symbol consist of one or more

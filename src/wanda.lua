@@ -26,9 +26,19 @@ function fmt(redex)
     return table.concat(redex, " ")
 end
 
+function contains_exactly_one(tbl, val)
+    local count = 0
+    for i, v in ipairs(tbl) do
+        if v == val then
+           count = count + 1
+        end
+    end
+    return (count == 1)
+end
+
 function find_match(rules, redex, i)
-    if redex[i] == ":" then
-        local j = i + 1
+    if redex[i] == "$" and redex[i+1] == ":" then
+        local j = i + 2
         local pattern = {}
         local replacement = {}
         local seen_arrow = false
@@ -42,7 +52,13 @@ function find_match(rules, redex, i)
            end
            j = j + 1
         end
-        return {start=i, stop=j, pattern={":", "...", ";"}, replacement={}, newrule={pattern=pattern, replacement=replacement}}
+
+        local newrule = nil
+        if contains_exactly_one(pattern, "$") and contains_exactly_one(replacement, "$") and replacement[1] == "$" then
+            newrule = {pattern=pattern, replacement=replacement}
+        end
+
+        return {start=i, stop=j, pattern={"$", ":", "...", ";"}, replacement={"$"}, newrule=newrule}
     end
 
     if is_number(redex[i]) and is_number(redex[i+1]) and redex[i+2] == "$" then
