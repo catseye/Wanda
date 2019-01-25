@@ -1,3 +1,3 @@
 #!/bin/sh
 
-falderal Wanda.md || exit 1
+falderal README.md || exit 1

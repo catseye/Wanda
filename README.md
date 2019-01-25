@@ -12,13 +12,13 @@ Basics
 ------
 
     -> Functionality "Run Wanda program" is implemented by
-    -> shell command "python src/wanda.py %(test-body-file)"
-
-    -> Functionality "Trace Wanda program" is implemented by
-    -> shell command "python src/wanda.py --trace %(test-body-file) | head -n 15"
+    -> shell command "lua src/wanda.lua %(test-body-file)"
 
     -> Functionality "Run Wanda program" is implemented by
-    -> shell command "lua src/wanda.lua %(test-body-file)"
+    -> shell command "python impl/wanda.py/src/wanda.py %(test-body-file)"
+
+    -> Functionality "Trace Wanda program" is implemented by
+    -> shell command "python impl/wanda.py/src/wanda.py --trace %(test-body-file) | head -n 15"
 
     -> Tests for functionality "Run Wanda program"
 
