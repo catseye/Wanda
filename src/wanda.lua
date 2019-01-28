@@ -107,7 +107,7 @@ function find_match(rules, redex, i)
 
     for n, rule in ipairs(rules) do
         local pattern = rule.pattern
-        local patlen = table.getn(pattern)
+        local patlen = #pattern
         local matched = true
         for p, patbit in ipairs(pattern) do
             if patbit ~= redex[i+(p-1)] then
@@ -126,7 +126,7 @@ end
 function run_wanda(redex, options)
     rules = {}
     start_index = 1
-    while start_index <= table.getn(redex) do
+    while start_index <= #redex do
         match_info = find_match(rules, redex, start_index)
         if match_info ~= nil then
             local i = match_info.start
