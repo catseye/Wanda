@@ -161,8 +161,12 @@ end
 
 --[[========================= main ================= ]]--
 
-local program = load_program(arg[1])
 local options = {}
---options.trace = true
+local argp = 1
+if arg[argp] == "--trace" then
+    options.trace = true
+    argp = argp + 1
+end
+local program = load_program(arg[argp])
 local result = run_wanda(program, options)
 print(fmt(result))

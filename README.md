@@ -14,6 +14,9 @@ Basics
     -> Functionality "Run Wanda program" is implemented by
     -> shell command "lua src/wanda.lua %(test-body-file)"
 
+    # -> Functionality "Trace Wanda program" is implemented by
+    # -> shell command "lua src/wanda.lua --trace %(test-body-file) | head -n 15"
+
     -> Functionality "Run Wanda program" is implemented by
     -> shell command "python impl/wanda.py/src/wanda.py %(test-body-file)"
 
@@ -368,6 +371,9 @@ To store a value on the left end of the string, what we'll do is
 "tie a weight" to it and let it "sink" to the bottom.
 
 We should make "the bottom" explicit, as well.  It will be the `)` symbol.
+
+    ) 1 2 3 4 5 $ 99 sink
+    ===> ) 99 1 2 3 4 5 $
 
 It might be illustrative to show the trace of this.
 
