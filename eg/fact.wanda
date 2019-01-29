@@ -1,3 +1,4 @@
-: 0 fact -> 1 ;
-: fact -> dup 1 - fact * ;
-$ 5 fact
+$
+: 0 $ fact -> $ 1 ;
+: $ fact -> $ dup 1 - fact * ;
+5 fact
