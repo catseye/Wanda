@@ -158,8 +158,7 @@ function run_wanda(redex, options)
             end
 
             if options.trace then
-                local formatted_rule = fmt(match_info.pattern) .. " -> " .. fmt(match_info.replacement)
-                print(":" .. formatted_rule .. "; => " .. fmt(redex))
+                print(fmt(redex))
             end
 
             start_index = 1
