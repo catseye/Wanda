@@ -99,6 +99,17 @@ function find_match(rules, redex, i)
         return {start=i, stop=i+2, pattern={x, "$", "dup"}, replacement={x, x, "$"}}
     end
 
+    if redex[i] == ")" and redex[i+1] == "$" and redex[i+2] and redex[i+3] == "sink" then
+        local x = redex[i+2]
+        return {start=i, stop=i+3, pattern={")", "$", x, "sink"}, replacement={")", "$", x}}
+    end
+
+    if redex[i] and redex[i+1] == "$" and redex[i+2] and redex[i+3] == "sink" then
+        local x = redex[i]
+        local y = redex[i+2]
+        return {start=i, stop=i+3, pattern={x, "$", y, "sink"}, replacement={"$", y, "sink", x}}
+    end
+
     if redex[i] == "$" and is_number(redex[i+1]) then
         return {start=i, stop=i+1, pattern={"$", redex[i+1]}, replacement={redex[i+1], "$"}}
     end
