@@ -176,16 +176,22 @@ end
 
 --[[========================= main ================= ]]--
 
-local options = {}
-local argp = 1
-if arg[argp] == "--trace" then
-    options.trace = true
-    argp = argp + 1
-    options.maxsteps = tonumber(arg[argp])
-    argp = argp + 1
+function main(args)
+    local options = {}
+    local argp = 1
+    if arg[argp] == "--trace" then
+        options.trace = true
+        argp = argp + 1
+        options.maxsteps = tonumber(arg[argp])
+        argp = argp + 1
+    end
+    local program = load_program(arg[argp])
+    local result = run_wanda(program, options)
+    if not options.trace then
+        print(fmt(result))
+    end
 end
-local program = load_program(arg[argp])
-local result = run_wanda(program, options)
-if not options.trace then
-    print(fmt(result))
+
+if arg ~= nil then
+    main(arg)
 end
