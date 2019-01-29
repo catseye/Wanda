@@ -15,7 +15,7 @@ Basics
     -> shell command "lua src/wanda.lua %(test-body-file)"
 
     -> Functionality "Trace Wanda program" is implemented by
-    -> shell command "lua src/wanda.lua --trace %(test-body-file) | head -n 15"
+    -> shell command "lua src/wanda.lua --trace 15 %(test-body-file)"
 
     -> Functionality "Run Wanda program" is implemented by
     -> shell command "python impl/wanda.py/src/wanda.py %(test-body-file)"
@@ -175,26 +175,26 @@ all fine except for the troublesome matter of it never terminating because we
 haven't given a base case.  Viewing the trace of execution for the first few
 steps makes this clear:
 
-    # -> Tests for functionality "Trace Wanda program"
-    # 
-    # 3 $
-    # : $ fact -> $ dup 1 - fact * ;
-    # fact
-    # ===> 3 $ fact
-    # ===> 3 $ dup 1 - fact *
-    # ===> 3 3 $ 1 - fact *
-    # ===> 3 3 1 $ - fact *
-    # ===> 3 2 $ fact *
-    # ===> 3 2 $ dup 1 - fact * *
-    # ===> 3 2 2 $ 1 - fact * *
-    # ===> 3 2 2 1 $ - fact * *
-    # ===> 3 2 1 $ fact * *
-    # ===> 3 2 1 $ dup 1 - fact * * *
-    # ===> 3 2 1 1 $ 1 - fact * * *
-    # ===> 3 2 1 1 1 $ - fact * * *
-    # ===> 3 2 1 0 $ fact * * *
-    # ===> 3 2 1 0 $ dup 1 - fact * * * *
-    # ===> 3 2 1 0 0 $ 1 - fact * * * *
+    -> Tests for functionality "Trace Wanda program"
+
+    3 $
+    : $ fact -> $ dup 1 - fact * ;
+    fact
+    ===> 3 $ fact
+    ===> 3 $ dup 1 - fact *
+    ===> 3 3 $ 1 - fact *
+    ===> 3 3 1 $ - fact *
+    ===> 3 2 $ fact *
+    ===> 3 2 $ dup 1 - fact * *
+    ===> 3 2 2 $ 1 - fact * *
+    ===> 3 2 2 1 $ - fact * *
+    ===> 3 2 1 $ fact * *
+    ===> 3 2 1 $ dup 1 - fact * * *
+    ===> 3 2 1 1 $ 1 - fact * * *
+    ===> 3 2 1 1 1 $ - fact * * *
+    ===> 3 2 1 0 $ fact * * *
+    ===> 3 2 1 0 $ dup 1 - fact * * * *
+    ===> 3 2 1 0 0 $ 1 - fact * * * *
 
     -> Tests for functionality "Run Wanda program"
 
@@ -391,7 +391,6 @@ It might be illustrative to show the trace of this.
     ===> ) 99 1 2 $ 3 4 5
     ===> ) 99 1 2 3 $ 4 5
     ===> ) 99 1 2 3 4 $ 5
-    ===> ) 99 1 2 3 4 5 $
     ===> ) 99 1 2 3 4 5 $
 
 Note that after the value has "sunk", the `$` will "bubble up" all

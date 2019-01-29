@@ -143,7 +143,8 @@ def main(args):
         args = args[1:]
     program = load_program(args[0])
     result = run_wanda(program, options)
-    print(fmt(result))
+    if not options.get('trace'):
+        print(fmt(result))
 
 
 if __name__ == '__main__':

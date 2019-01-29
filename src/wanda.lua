@@ -137,6 +137,7 @@ end
 function run_wanda(redex, options)
     rules = {}
     start_index = 1
+    step_num = 1
     while start_index <= #redex do
         match_info = find_match(rules, redex, start_index)
         if match_info ~= nil then
@@ -159,9 +160,13 @@ function run_wanda(redex, options)
 
             if options.trace then
                 print(fmt(redex))
+                if options.maxsteps and step_num >= options.maxsteps then
+                    return redex
+                end
             end
 
             start_index = 1
+            step_num = step_num + 1
         else
             start_index = start_index + 1
         end
@@ -176,7 +181,11 @@ local argp = 1
 if arg[argp] == "--trace" then
     options.trace = true
     argp = argp + 1
+    options.maxsteps = tonumber(arg[argp])
+    argp = argp + 1
 end
 local program = load_program(arg[argp])
 local result = run_wanda(program, options)
-print(fmt(result))
+if not options.trace then
+    print(fmt(result))
+end
