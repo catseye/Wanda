@@ -1,8 +1,8 @@
 Wanda
 =====
 
-Wanda is a Forth-like "concatenative" language that's probably not actually 
-"concatenative" at all, nor even "stack-based", because it's based on a
+Wanda is a Forth-like "concatenative" language that's arguably not actually
+concatenative at all, nor even "stack-based", because it's based on a
 string-rewriting semantics.
 
 The remainder of this document will describe the language and will attempt
@@ -11,21 +11,9 @@ to justify the above statement.
 Basics
 ------
 
-    -> Functionality "Run Wanda program" is implemented by
-    -> shell command "lua src/wanda.lua %(test-body-file)"
-
-    -> Functionality "Trace Wanda program" is implemented by
-    -> shell command "lua src/wanda.lua --trace 15 %(test-body-file)"
-
-    -> Functionality "Run Wanda program" is implemented by
-    -> shell command "python impl/wanda.py/src/wanda.py %(test-body-file)"
-
-    -> Functionality "Trace Wanda program" is implemented by
-    -> shell command "python impl/wanda.py/src/wanda.py --trace %(test-body-file) | head -n 15"
-
     -> Tests for functionality "Run Wanda program"
 
-A Wanda program is a string of symbols.  Each symbol consist of one or more
+A Wanda program is a string of symbols.  Each symbol consists of one or more
 non-whitespace characters.  In the string, symbols are separated by whitespace.
 
 Here is a legal Wanda program.  (The `===>` is not part of the program;
@@ -45,9 +33,9 @@ For example, in the above,
 
 Rewrites occur when parts of the string match the pattern of one of the
 rewrite rules that are in effect.  For instance, the rule for `+` has the
-pattern `X Y $ +`, where X and Y are integers; the part of the string that
-matches that pattern is replaced by a single integer which is the sum of
-X and Y, followed by a `$`.
+pattern `X Y $ +`, where X and Y are integer symbols; the part of the string
+that matches this pattern is replaced by a single integer symbol which is
+the sum of X and Y, followed by a `$`.
 
 You can think of `$` as a symbol which delineates the stack (on the left)
 from the program (on the right).  When constants are encountered in the
@@ -69,7 +57,7 @@ expression remains unchanged and evaluation terminates:
 ### Some other builtins
 
 We've seen `+` and `*`, which are built-in functions (or rules).
-There are a couple of other built-in functions (or rules).
+There are a handful of other built-in functions (or rules).
 
     $ 7 sgn 0 sgn -14 sgn
     ===> 1 0 -1 $
