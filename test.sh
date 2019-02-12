@@ -1,3 +1,3 @@
 #!/bin/sh
 
-falderal tests/appliances/lua.md tests/appliances/python.md README.md || exit 1
+falderal README.md || exit 1
