@@ -1,5 +1,6 @@
 ---
---- wanda.lua - Reference implementation of the Wanda programming language
+--- wanda.lua
+--- Reference implementation of the Wanda programming language, in Lua 5.1
 --- 2019, Chris Pressey, Cat's Eye Technologies
 ---
 
@@ -173,8 +174,6 @@ function run_wanda(redex, options)
     end
     return redex
 end
-
---[[========================= main ================= ]]--
 
 function main(args)
     local options = {}
