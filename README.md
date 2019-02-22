@@ -420,7 +420,7 @@ sort of thing with Haskell's `newtype`, but at the time it wasn't obvious.
 
 Did it also seem like already-explored territory to me?  Perhaps; it
 feels like I felt that way at some point.  I don't think I had encountered
-[Enchilda][] back then (I don't think I had even heard of "concatenative"
+[Enchilada][] back then (I don't think I had even heard of "concatenative"
 languages at that time), but a year or two later, when I did learn there
 was already a stack-based rewriting-based language out there, it may have
 discouraged me further.
@@ -436,7 +436,7 @@ Here are some ideas for more features that might be productively added
 to the language, if we wanted more from it than just showing that it's
 Turing-complete.
 
-One thing that is atrractive is the possibility for creating new
+One thing that is attractive is the possibility for creating new
 rules that are not written statically in the initial program.  And
 possibly retracting existing rules too, but this seems less exciting.
 But I haven't worked out a way to do this yet that I like.
