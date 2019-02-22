@@ -1,8 +1,8 @@
 Wanda
 =====
 
-Wanda is a Forth-like "concatenative" language that's arguably not actually
-concatenative at all, nor even "stack-based", because it's based on a
+Wanda is a Forth-like, "concatenative" programming language that's arguably
+not concatenative at all, nor even "stack-based", because it's based on a
 string-rewriting semantics.
 
 The remainder of this document will describe the language and will attempt
@@ -38,17 +38,17 @@ For example, in the above,
 *   finally, `5 4 $ *` is rewritten into `20 $`.
 
 Rewrites occur when parts of the string match the pattern of one of the
-rewrite rules that are in effect.  For instance, the rule for `+` has the
-pattern `X Y $ +`, where X and Y are integer symbols; the part of the string
-that matches this pattern is replaced by a single integer symbol which is
-the sum of X and Y, followed by a `$`.
+rewrite rules in effect.  For instance, the rule for `+` has the pattern
+`X Y $ +`, where X and Y will match any integer symbols; the part of the
+string that matches this pattern is replaced by a single integer symbol which
+is the sum of X and Y, followed by a `$`.
 
-You can think of `$` as a symbol which delineates the stack (on the left)
+You can think of `$` as a symbol that delineates the stack (on the left)
 from the program (on the right).  When constants are encountered in the
 program, they are pushed onto the stack.
 
-But if you do think of it this way, keep in mind that it is only a
-convenient illusion.  For despite looking like and evaluating like a Forth
+But if you do think of it this way, bear in mind that it is only a
+convenient illusion.  For, despite looking like and evaluating like a Forth
 program, there is no "stack" that is distinct from the program — it's
 all just a string that gets rewritten.  `2` is neither an element on the
 stack, nor an instruction that pushes the value 2 onto the stack; it's just
@@ -151,8 +151,8 @@ languages, by deriving them from the built-in operations.
 Recursion
 ---------
 
-If we include the name of a function in its definition, recursion ought to
-happen.  And indeed, it does.  For example if we said
+If we include the name of the function in its own definition, recursion ought
+to happen.  And indeed, it does.  For example if we said
 
     : $ fact -> $ dup 1 - fact * ;
 
@@ -201,7 +201,8 @@ can specify both the pattern and the replacement.  So, if we say
     : 0 $ fact -> $ 1 ;
 
 we have defined a rule which matches `0 $ fact` and replaces it with `$ 1`
-(which will immediatey rewrite to `1 $`).  Thus the recursion can terminate:
+(which will immediately be rewritten to `1 $`).  Thus the recursion will
+now terminate.
 
     $
     : 0 $ fact -> $ 1 ;
@@ -219,9 +220,9 @@ the above, but in fact it does not:
     ===> 120 $
 
 This is because the string is searched left-to-right for the first match,
-and if the string contains `0 fact`, this will always match `0 fact` before
-we're even in a position to check the parts of the string to the right of
-the `0` for the pattern `fact`.
+and if the string contains `0 fact`, this will always match a pattern of
+`0 fact` before we're even in a position to check the parts of the string
+to the right of the `0` that would match the pattern `fact`.
 
 Computational class
 -------------------
@@ -233,28 +234,30 @@ Well, we have a first-in-first-out stack discipline, and it's well-known
 that if you have a strict stack discipline you have a push-down automaton,
 not a Turing machine.
 
-If we have unbounded integers, and a division operation or `swap`, we might
-be able to make a 1-counter or 2-counter [Minsky machine][].  But we don't
-have those operations, and I haven't said anything about the boundedness
-of integers yet.
+If we had unbounded integers, and a division operation or `swap`, we might
+be able to make a 1- or 2-counter [Minsky machine][].  But we don't have
+those operations, and I haven't said anything about the boundedness of
+integers yet.
 
 And anyway, that all assumes this is a traditional stack-based language,
 which it's not!  It's a string-rewriting language, and it naturally has
-access to the deep parts of the stack, because it looks for patterns in them.
+access to the deep parts of the stack, because it goes and looks for
+patterns in them.
 
 In fact, from this viewpoint, the language looks a lot like a deterministic
 version of [Thue][].  Every time we define a function like
 
     : $ not -> $ sgn abs 1 - abs ;
 
-it's like defining a rule in Thue like
+it's not unlike defining a rule in Thue like
 
     $N::=$SA1-A
 
 And Thue is Turing-complete, and the additional determinism isn't an
-impediment from the perspective of seeing what it can compute — a program
-which is written to accomodate an unspecified rewriting order can be written
-to work the same way when the order is specified and fixed.
+impediment to what it can compute — a program which is written to
+accomodate an unspecified rewriting order (as Thue programs generally
+are) can be written to work the same way when the order is specified and
+fixed.
 
 So, if we were to leave the language as it is so far, we could conclude
 it's Turing-complete.  Which is great, but also somewhat unsatisfying.
@@ -268,19 +271,18 @@ We could say we have unbounded integers, but I don't think that helps
 because you can just embed a finite alphabet a la Thue in your unbounded
 alphabet of integers.
 
-But what if we place restrictions on the function definitions.
+But what if we place restrictions on the function definitions?
 
 Specifically, let's say every rewrite rule must contain exactly one `$`
-on the left and exactly one `$` on the right, and additionally, let's say
-the redex (the string currently being rewritten) likewise must contain
-exactly one `$`.
+on the left and exactly one `$` on the right.
 
 This might seem to do the trick: you can now rewrite the string in
-only one place: around the `$`.  That's a pretty big impediment.
+only one place: around the leftmost `$`.  That's a pretty big impediment.
 
-Concretely, if you actually violate this rule, the implementation may
-flag up some kind of warning, but at any rate, it will erase the special
-form, but it not introduce any new rules.
+Concretely, let's say that if you actually violate this constraint when
+defining a function, the Wanda implementation may flag up some kind of
+warning, but at any rate, it will erase the special form, but it not
+introduce any new rules.
 
     $
     : $ ten -> 10 ;
@@ -307,9 +309,9 @@ form, but it not introduce any new rules.
     ten
     ===> $ ten
 
-But this isn't enough, because you can add rules that move the `$`
-around in the string.  If you want to rewrite some other part of
-the string, you just add some rules that move the `$` there first.
+But this isn't quite enough, because you can add rules that move the `$`
+around in the string.  If you want to rewrite some other part of the
+string, you can just add some rules that move the `$` there first.
 
 So we'll make the restriction even stronger: on the right-hand side
 (but not necessarily the left-hand side), the single `$` must always
@@ -328,35 +330,32 @@ appear as the *leftmost* symbol.
 Anyway, the point is, this prevents us from ever writing a rule that moves
 the `$` to the right.  And so this prevents us from arbitrarily moving the
 `$` around, which prevents us from being able to rewrite arbitrary parts
-of the string (which would make it Turing-complete like Thue).  But it
-continues to capture all the functions we've shown so far.
+of the string, which prevents it being Turing-complete in the way Thue is.
+But it continues to be able to express all the functions we've shown so far.
 
 But what of the built-in functions?  It's true that they allow us to
 move some information in the redex from the right of the `$` to the left.
 `$ 10`, for example, rewrites to `10 $`.  But each of these can only move
-a bounded amount of information, and this (I think) still prevents us from
-getting to arbitrary parts of the string and rewriting them.
+a *bounded* amount of information, and this prevents us from getting to
+arbitrary parts of the string and rewriting them.
 
-In fact, I _think_ (but have not proved) that this limits the kinds
-of rewrites that can be undertaken in exactly the same way a strict
-stack discipline does, i.e. it can only compute what a push-down automaton
-can compute.
+In fact, I _think_ that this limits the kinds of rewrites that can be
+undertaken in exactly the same way a strict stack discipline does, i.e. it
+can only compute what a push-down automaton can compute.
 
-But I have no proof of that.  It may turn out, in fact, that even with
-these restrictions, the language is Turing-complete, due to something
+But I have not got a proof of that.  It may turn out, in fact, that even
+with these restrictions, the language is Turing-complete, due to something
 I've missed.
 
-So, I'll describe the feature added in the next section like this:
-it makes Wanda Turing-complete, even if the language we've described so
-far already is.
+So, I'll hedge a bit, and describe the feature that will be added in the
+next section like so: it makes Wanda Turing-complete, even if the language
+we've described so far already is.
 
 Concrete Shoes
 --------------
 
 Let's introduce some built-in rules that allow us to manipulate values
-at the left end of the string, i.e. deep in the "stack".  This should
-allow us to construct a Tag system, and be Turing-complete that way,
-if we like.
+at the left end of the string, i.e. deep in the "stack".
 
 In fact, since we're imagining part of this string is a "stack" anyway,
 we might as well go further and imagine it's a body of water.
@@ -390,26 +389,52 @@ It might be illustrative to show the trace of this.
 Note that after the value has "sunk", the `$` will "bubble up" all
 by itself, assuming the values on the stack are integers.
 
+It should now be straightforward to construct a [Tag system][] in Wanda,
+by matching patterns at the top (i.e. at the right edge of the string),
+and, upon a successful match, "sinking" new values to the bottom
+(the left edge of string).  And because Tag systems are Turing-complete
+and Wanda can simulate any Tag system, Wanda is Turing-complete.
+
 History
 -------
 
-Wanda was originally conceived in 2009.  I distinctly remember working on
-its reference implementation (in Haskell) on a laptop in a laundromat in
-Seattle.  For some reason it had a right-to-left rewriting order.
-I'm not exactly certain why I shelved it.  I think certain things about it
-were somewhat mystifying to me (I don't recall why I thought it benefited
-from having a right-to-left rewriting order) and/or it seemed like
-already-explored territory (again, I don't have a clear example of why I
-might have thought that; I might have encountered [Enchilda][] at that
-point; however, I think that was later — I don't think I had even heard of
-"concatenative" at that time — and besides, Enchilada is not all that
-similar.)
+Wanda was originally conceived in 2009 (I distinctly remember working on
+its reference implementation, in Haskell, on a laptop in a laundromat in
+Seattle), but it wasn't as developed as what you see here; the idea that
+a Forth-like language could be defined using string-rewriting semantics
+was there, but it didn't really carry through with this idea.
+
+There are probably several reasons for this.
+
+One is that I thought it should have a right-to-left rewriting order.
+I don't remember my reason for that (if I actually had one).  It did not
+have the distinguished `$` symbol, so this would have resulted in an
+odd (or at least unintuitive) order of evaluation, and I never really
+worked that out.
+
+Another is that, the way I was implementing it in Haskell, it would have
+been most natural to describe the reduction function with an infinite
+type.  Learning that Haskell did not support that "out of the box" was
+somewhat discouraging.  Now, of course, I realize that you can fake that
+sort of thing with Haskell's `newtype`, but at the time it wasn't obvious.
+
+Did it also seem like already-explored territory to me?  Perhaps; it
+feels like I felt that way at some point.  I don't think I had encountered
+[Enchilda][] back then (I don't think I had even heard of "concatenative"
+languages at that time), but a year or two later, when I did learn there
+was already a stack-based rewriting-based language out there, it may have
+discouraged me further.
+
+But Enchilada is really not all that similar to Wanda, and the idea and
+the desire to turn it into a real (toy) language never really went away.
+So here we are.
 
 Further Work
 ------------
 
-If what's described here is Core Wanda, that suggests there might be
-more that could be productively added, and I do believe that.
+Here are some ideas for more features that might be productively added
+to the language, if we wanted more from it than just showing that it's
+Turing-complete.
 
 One thing that is atrractive is the possibility for creating new
 rules that are not written statically in the initial program.  And
@@ -421,3 +446,4 @@ But I haven't worked out a way to do this yet that I like.
 [Enchilada]: http://www.enchiladacode.nl/
 [Minsky machine]: https://esolangs.org/wiki/Minsky_machine
 [Thue]: https://esolangs.org/wiki/Thue
+[Tag system]: https://esolangs.org/wiki/Tag%20system
