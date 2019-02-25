@@ -1,0 +1,5 @@
+#!/bin/sh
+
+SCRIPT=`readlink $0`
+SCRIPTDIR=`dirname $SCRIPT`
+lua $SCRIPTDIR/../src/wanda.lua $*
