@@ -1,3 +1,3 @@
 #!/bin/sh
 
-falderal README.md || exit 1
+falderal tests/appliances/wanda.lua.md README.md || exit 1
