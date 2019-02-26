@@ -392,11 +392,11 @@ and Wanda can simulate any Tag system, Wanda is Turing-complete.
 History
 -------
 
-Wanda was originally conceived in 2009 (I distinctly remember working on
-its reference implementation, in Haskell, on a laptop in a laundromat in
-Seattle), but it wasn't as developed as what you see here; the idea that
-a Forth-like language could be defined using string-rewriting semantics
-was there, but it didn't really carry through with this idea.
+Wanda was originally conceived in 2009 (I distinctly remember implementing
+the idea, in Haskell, on a laptop in a laundromat in Seattle), but it wasn't
+as developed as what you see here; the idea that a Forth-like language could
+be defined using string-rewriting semantics was there, but it didn't really
+carry through with it.
 
 There are probably several reasons for this.
 
@@ -404,11 +404,11 @@ One is that I thought it should have a right-to-left rewriting order.
 I don't remember my reason for that (if I actually had one).  It did not
 have the distinguished `$` symbol, so this would have resulted in an
 odd (or at least unintuitive) order of evaluation, and I never really
-worked that out.
+worked out the full implications of that.
 
 Another is that, the way I was implementing it in Haskell, it would have
-been most natural to describe the reduction function with an infinite
-type.  Learning that Haskell did not support that "out of the box" was
+been most natural to describe the reduction function with an [infinite type][].
+Discovering that Haskell did not support that "out of the box" was
 somewhat discouraging.  Now, of course, I realize that you can fake that
 sort of thing with Haskell's `newtype`, but at the time it wasn't obvious.
 
@@ -426,14 +426,18 @@ So here we are.
 Further Work
 ------------
 
-Here are some ideas for more features that might be productively added
-to the language, if we wanted more from it than just showing that it's
-Turing-complete.
+There may be more features that might be productively added to the language,
+if we wanted more from it than just showing that it's Turing-complete.
 
-One thing that is attractive is the possibility for creating new
-rules that are not written statically in the initial program.  And
-possibly retracting existing rules too, but this seems less exciting.
-But I haven't worked out a way to do this yet that I like.
+One logical extension would be, since we are able to `sink` values to
+the bottom of the stack, also be able to `float` them up from the bottom
+again.  This would let the bottom of the stack be usable as a temporary
+storage area, rather than just as a way to use the string as a queue.
+
+Another thing that seems attractive is the possibility for creating new
+rules that are not written statically in the initial program.  (And
+possibly retracting existing rules too, but this seems less exciting.)
+But I haven't worked out a way to do this yet that I really like.
 
 - - - -
 
@@ -441,3 +445,4 @@ But I haven't worked out a way to do this yet that I like.
 [Minsky machine]: https://esolangs.org/wiki/Minsky_machine
 [Thue]: https://esolangs.org/wiki/Thue
 [Tag system]: https://esolangs.org/wiki/Tag%20system
+[infinite type]: https://mail.haskell.org/pipermail/haskell-cafe/2006-December/020074.html
