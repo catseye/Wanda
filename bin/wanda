@@ -1,5 +1,6 @@
 #!/bin/sh
 
 SCRIPT=`readlink $0`
+if [ "x$SCRIPT" = "x" ]; then SCRIPT=$0; fi
 SCRIPTDIR=`dirname $SCRIPT`
 lua $SCRIPTDIR/../src/wanda.lua $*
