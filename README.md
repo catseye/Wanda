@@ -328,7 +328,7 @@ of the string, which prevents it being Turing-complete in the way Thue is.
 But it continues to be able to express all the functions we've shown so far.
 
 But what of the built-in functions?  It's true that they allow us to
-move some information in the redex from the right of the `$` to the left.
+move some information from the right of the `$` in the string to the left.
 `$ 10`, for example, rewrites to `10 $`.  But each of these can only move
 a *bounded* amount of information, and this prevents us from getting to
 arbitrary parts of the string and rewriting them.
@@ -341,7 +341,7 @@ But I have not got a proof of that.  It may turn out, in fact, that even
 with these restrictions, the language is Turing-complete, due to something
 I've missed.
 
-So, I'll hedge a bit, and describe the feature that will be added in the
+So, I'll hedge a bit, and I'll describe the feature that will be added in the
 next section like so: it makes Wanda Turing-complete, even if the language
 we've described so far already is.
 
@@ -420,7 +420,7 @@ was already a stack-based rewriting-based language out there, it may have
 discouraged me further.
 
 But Enchilada is really not all that similar to Wanda, and the idea and
-the desire to turn it into a real (toy) language never really went away.
+the desire to turn Wanda into a real (toy) language never really went away.
 So here we are.
 
 Further Work
@@ -439,7 +439,7 @@ rules that are not written statically in the initial program.  (And
 possibly retracting existing rules too, but this seems less exciting.)
 But I haven't worked out a way to do this yet that I really like.
 
-Happy nonconcatenativeing,
+Happy nonconcatenativeing!  
 Chris Pressey  
 London, England  
 Feb 27, 2019
