@@ -439,7 +439,10 @@ rules that are not written statically in the initial program.  (And
 possibly retracting existing rules too, but this seems less exciting.)
 But I haven't worked out a way to do this yet that I really like.
 
-- - - -
+Happy nonconcatenativeing,
+Chris Pressey  
+London, England  
+Feb 27, 2019
 
 [Enchilada]: http://www.enchiladacode.nl/
 [Minsky machine]: https://esolangs.org/wiki/Minsky_machine
