@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>wanda.lua (running under Fengari)</title>
+  <style>
+#installation-container { }
+  </style>
+</head>
+<body>
+
+<h1>Wanda</h1>
+
+<p>(wanda.lua running under Fengari)</p>
+
+<div id="installation-container">
+  <div id="installation">
+  </div>
+</div>
+
+<script src="https://catseye.tc/contrib/fengari-web-v0.1.4/fengari-web.js"></script>
+<script src="../../../eg/index.js"></script>
+<script src="wanda-fengari-launcher.js"></script>
+<script type="application/lua" src="../src/wanda.lua" async></script>
+<script>
+  launch({ container: document.getElementById('installation') });
+</script>
+
+</body>
