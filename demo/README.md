@@ -19,4 +19,4 @@ in your web browser.  If you don't have Python, other options
 can be found here: [how to run things locally][].
 
 [Fengari]: https://fengari.io/
-[how to run things locally]: https://github.com/mrdoob/three.js/wiki/How-to-run-things-locally#run-local-server
+[how to run things locally]: https://web.archive.org/web/20190117102459/https://github.com/mrdoob/three.js/wiki/How-to-run-things-locally#run-local-server
